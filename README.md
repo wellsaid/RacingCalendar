@@ -18,3 +18,7 @@ Main features of the app:
   - Showing a list of all upcoming sessions (for favorite series).
   - Customize notifications for each series or event.
   - Notify the user when a session he is interested in its starting (~10 minute before).
+
+# Specification file
+
+![Click here](Specification.pdf)
