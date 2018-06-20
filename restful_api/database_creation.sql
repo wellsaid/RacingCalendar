@@ -1,7 +1,9 @@
-DROP TABLE IF EXISTS events;
-DROP TABLE IF EXISTS series;
-
+DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS session_types;
+
+DROP TABLE IF EXISTS events;
+
+DROP TABLE IF EXISTS series;
 DROP TABLE IF EXISTS series_types;
 
 CREATE TABLE series_types (
@@ -14,7 +16,7 @@ CREATE TABLE series_types (
 CREATE TABLE series (
 	short_name VARCHAR(10) PRIMARY KEY,
 	complete_name VARCHAR(50) NOT NULL,
-	series_type VARCHAR(30) NOT NULL,
+	series_type VARCHAR(20) NOT NULL,
 	description VARCHAR(300),
 	logo_URL VARCHAR(100),
 	thumbnail_URL VARCHAR(100),
@@ -38,4 +40,15 @@ CREATE TABLE session_types (
 	complete_name VARCHAR(50) NOT NULL
 );
 
-/* TODO create session table */
+CREATE TABLE sessions (
+	short_name VARCHAR(10) NOT NULL,
+	complete_name VARCHAR(50) NOT NULL,
+	session_type VARCHAR(10) NOT NULL,
+	event_ID INTEGER NOT NULL,
+	series_short_name VARCHAR(10) NOT NULL,
+	start_datetime DATETIME NOT NULL,
+	end_datetime DATETIME,
+	FOREIGN KEY (session_type) REFERENCES session_types(short_name),
+	FOREIGN KEY (event_ID, series_short_name) REFERENCES events(ID, series_short_name),
+	PRIMARY KEY (short_name, event_ID, series_short_name)
+);
