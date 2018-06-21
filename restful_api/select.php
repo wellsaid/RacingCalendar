@@ -2,7 +2,7 @@
 
 // ================= DEFINITIONS =================
 // Tables accessible in the public API
-$available_tables = array("series","events");
+$available_tables = array("series","events","series_types","session_types","sessions");
 
 // Relative path of the database login detail file (it should be in a secure location)
 $db_file = "./db/db.php";
