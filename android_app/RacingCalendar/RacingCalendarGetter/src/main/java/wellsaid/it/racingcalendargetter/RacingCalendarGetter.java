@@ -25,17 +25,37 @@ public class RacingCalendarGetter {
     private static final String SERVER_URL = "http://racingcalendar.altervista.org/select.php/";
 
     /* Helper method to retrieve RacingCalendar object from a JSON server response */
-    private static List<Object> jsonArrayToRacingCalendarObject(String table, String responseBody){
+    private static List<Object> jsonArrayToObjectList(String table, String responseBody){
         Gson gson = new Gson();
 
-        /* TODO: Choose what objects to parse based on the table */
-        Type collectionType = new TypeToken<ArrayList<RacingCalendar.SeriesType>>(){}.getType();
+        /* Choose what objects to parse based on the table */
+        Type listType = null;
+        switch(table){
+            case SERIES_TYPES:
+                listType = new TypeToken<ArrayList<RacingCalendar.SeriesType>>(){}.getType();
+                break;
+            case SERIES:
+                /* TODO */
+                break;
+            case EVENTS:
+                /* TODO */
+                break;
+            case SESSION_TYPES:
+                /* TODO */
+                break;
+            case SESSIONS:
+                /* TODO */
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid table: " + table);
+        }
 
-        return gson.fromJson(responseBody, collectionType);
+        /* parse the json and return the list to the caller */
+        return gson.fromJson(responseBody, listType);
     }
 
     /**
-     * This interface is implemented by listener to retrieve data from get() method
+     * This interface is implemented by listeners to retrieve data from get() method
      */
     public interface DataListener {
         /**
@@ -43,7 +63,7 @@ public class RacingCalendarGetter {
          * @param list
          *     If successfull the list of objects representing the results. If failed null.
          */
-        void onRacingCalendarData(List<Object> list);
+        void onRacingCalendarDataReceived(List<Object> list);
     }
 
     /**
@@ -111,27 +131,57 @@ public class RacingCalendarGetter {
             @Override
             public void onFailure(Call call, IOException e) {
                 /* pass null to the listener to signal a failure */
-                listener.onRacingCalendarData(null);
+                listener.onRacingCalendarDataReceived(null);
             }
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     /* pass null to the listener to signal a failure */
-                    listener.onRacingCalendarData(null);
+                    listener.onRacingCalendarDataReceived(null);
                     return;
                 }
 
                 ResponseBody body = response.body();
                 if(body == null){
                     /* pass null to the listener to signal a failure */
-                    listener.onRacingCalendarData(null);
+                    listener.onRacingCalendarDataReceived(null);
                     return;
                 }
 
                 /* on data correctly received, pack them in objects and send them to listener */
-                listener.onRacingCalendarData(
-                        jsonArrayToRacingCalendarObject(table, body.string()));
+                listener.onRacingCalendarDataReceived(jsonArrayToObjectList(table, body.string()));
+            }
+        });
+    }
+
+    /**
+     * This interface is implemented by listeners to retrieve data from get<T>() method
+     */
+    public interface Listener<T> {
+        /**
+         * Called by RacingCalendarGetter when response is ready
+         * @param list
+         *     If successfull the list of objects representing the results. If failed null.
+         */
+        void onRacingCalendarObjectsReceived(List<T> list);
+    }
+
+    /**
+     * Method to retrieve objects from the server
+     * @param key
+     *     The value of the primary key of the desired object (null for all)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static <T> void get(String key, final Listener<T> listener) {
+        List<String> selection = (key == null)?null:Arrays.asList("shortName");
+        List<String> selectionValues = (key == null)?null:Arrays.asList(key);
+
+        get(SERIES_TYPES, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived((List<T>) list);
             }
         });
     }
