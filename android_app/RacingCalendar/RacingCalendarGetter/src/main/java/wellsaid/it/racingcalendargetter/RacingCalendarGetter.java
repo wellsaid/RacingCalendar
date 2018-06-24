@@ -1,6 +1,8 @@
 package wellsaid.it.racingcalendargetter;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
@@ -26,7 +28,9 @@ public class RacingCalendarGetter {
 
     /* Helper method to retrieve RacingCalendar object from a JSON server response */
     private static List<Object> jsonArrayToObjectList(String table, String responseBody){
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .create();
 
         /* Choose what objects to parse based on the table */
         Type listType = null;
@@ -35,23 +39,27 @@ public class RacingCalendarGetter {
                 listType = new TypeToken<ArrayList<RacingCalendar.SeriesType>>(){}.getType();
                 break;
             case SERIES:
-                /* TODO */
+                listType = new TypeToken<ArrayList<RacingCalendar.Series>>(){}.getType();
                 break;
             case EVENTS:
-                /* TODO */
+                listType = new TypeToken<ArrayList<RacingCalendar.Event>>(){}.getType();
                 break;
             case SESSION_TYPES:
-                /* TODO */
+                listType = new TypeToken<ArrayList<RacingCalendar.SessionType>>(){}.getType();
                 break;
             case SESSIONS:
-                /* TODO */
+                listType = new TypeToken<ArrayList<RacingCalendar.Session>>(){}.getType();
                 break;
             default:
                 throw new IllegalArgumentException("Invalid table: " + table);
         }
 
         /* parse the json and return the list to the caller */
-        return gson.fromJson(responseBody, listType);
+        try {
+            return gson.fromJson(responseBody, listType);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
     }
 
     /**
@@ -167,21 +175,154 @@ public class RacingCalendarGetter {
         void onRacingCalendarObjectsReceived(List<T> list);
     }
 
+    /* Helper method to cast a list of objects into a list of T */
+    private static <T> List<T> castList(List<Object> list) {
+        if(list == null){
+            return null;
+        }
+
+        ArrayList<T> toReturn = new ArrayList<>();
+
+        for(Object obj : list){
+            try {
+                toReturn.add((T) obj);
+            } catch (ClassCastException e){
+                throw new IllegalArgumentException("Element in list cannot be cast");
+            }
+        }
+
+        return toReturn;
+    }
+
     /**
-     * Method to retrieve objects from the server
-     * @param key
-     *     The value of the primary key of the desired object (null for all)
+     * Method to retrieve series types from the server
+     * @param shortName
+     *     The value of the primary key of the desired series type (null for all)
      * @param listener
      *     The listener to which to return the list of objects
      */
-    public static <T> void get(String key, final Listener<T> listener) {
-        List<String> selection = (key == null)?null:Arrays.asList("shortName");
-        List<String> selectionValues = (key == null)?null:Arrays.asList(key);
+    public static void getSeriesTypes(String shortName, final Listener<SeriesType> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(shortName != null){
+            selection = Arrays.asList("shortName");
+            selectionValues = Arrays.asList(shortName);
+        }
 
         get(SERIES_TYPES, selection, selectionValues, new DataListener() {
             @Override
             public void onRacingCalendarDataReceived(List<Object> list) {
-                listener.onRacingCalendarObjectsReceived((List<T>) list);
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<SeriesType>castList(list));
+            }
+        });
+    }
+
+    /**
+     * Method to retrieve series from the server
+     * @param shortName
+     *     The value of the primary key of the desired series (null for all)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static void getSeries(String shortName, final Listener<Series> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(shortName != null){
+            selection = Arrays.asList("shortName");
+            selectionValues = Arrays.asList(shortName);
+        }
+
+        get(SERIES, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<Series>castList(list));
+            }
+        });
+    }
+
+    /**
+     * Method to retrieve events from the server
+     * @param ID
+     *     The ID of the of the desired series (null for all)
+     *     (togheter with seriesShortName is the primary key)
+     * @param seriesShortName
+     *     The series of the of the desired series (null for all)
+     *     (togheter with ID is the primary key)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static void getEvents(String ID, String seriesShortName,
+                                 final Listener<Event> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(ID != null && seriesShortName != null){
+            selection = Arrays.asList("ID","seriesShortName");
+            selectionValues = Arrays.asList(ID,seriesShortName);
+        }
+
+        get(EVENTS, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<Event>castList(list));
+            }
+        });
+    }
+
+    /**
+     * Method to retrieve series from the server
+     * @param shortName
+     *     The value of the primary key of the desired session type (null for all)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static void getSessionTypes(String shortName, final Listener<SessionType> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(shortName != null){
+            selection = Arrays.asList("shortName");
+            selectionValues = Arrays.asList(shortName);
+        }
+
+        get(SESSION_TYPES, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<SessionType>castList(list));
+            }
+        });
+    }
+
+    /**
+     * Method to retrieve series from the server
+     * @param shortName
+     *     The short name of the desired session (null for all)
+     *     (togheter with eventID and seriesShortName is the primary key)
+     * @param seriesShortName
+     *     The short name of the series of desired session (null for all)
+     *     (togheter with eventID and shortName is the primary key)
+     * @param eventID
+     *     The id of the event (null for all)
+     *     (togheter with seriesShortName and shortName is the primary key)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static void getSession(String shortName, String seriesShortName, String eventID,
+                                  final Listener<Session> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(shortName != null && seriesShortName != null && eventID != null){
+            selection = Arrays.asList("shortName" ,"seriesShortName","eventID");
+            selectionValues = Arrays.asList(shortName, seriesShortName, eventID);
+        }
+
+        get(SESSIONS, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<Session>castList(list));
             }
         });
     }

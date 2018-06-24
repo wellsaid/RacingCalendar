@@ -41,7 +41,6 @@ CREATE TABLE session_types (
 );
 
 CREATE TABLE sessions (
-	shortName VARCHAR(10) NOT NULL,
 	completeName VARCHAR(50) NOT NULL,
 	sessionType VARCHAR(10) NOT NULL,
 	eventID INTEGER NOT NULL,
@@ -50,5 +49,5 @@ CREATE TABLE sessions (
 	endDateTime DATETIME,
 	FOREIGN KEY (session_type) REFERENCES session_types(shortName),
 	FOREIGN KEY (event_ID, seriesShortName) REFERENCES events(ID, seriesShortName),
-	PRIMARY KEY (shortName, eventID, seriesShortName)
+	PRIMARY KEY (eventID, seriesShortName)
 );
