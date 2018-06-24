@@ -27,7 +27,7 @@ public class RacingCalendarGetter {
     /**
      * This interface is implemented by listener to retrieve data from get() method
      */
-    interface DataListener {
+    public interface DataListener {
         /**
          * Called by RacingCalendarGetter when response is ready
          * @param list
@@ -90,6 +90,12 @@ public class RacingCalendarGetter {
             /* if not throw an exception */
             throw new IllegalArgumentException(
                     "selection and selectionValues array must have the same size");
+        }
+
+        /* Check if we have a listener to return to */
+        if(listener == null){
+            /* if not we have nothing to do */
+            return;
         }
 
         /* Create client object to connect with the server */

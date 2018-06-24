@@ -56,13 +56,13 @@ if (!$result) {
 }
 
 // print results, insert id or affected row count
-echo '<pre>' . PHP_EOL;
+//echo '<pre>' . PHP_EOL;
 echo '[' . PHP_EOL;
 for ($i=0;$i<mysqli_num_rows($result);$i++) {
 	echo ($i>0?',':'').json_encode(mysqli_fetch_object($result), JSON_PRETTY_PRINT);
 }
 echo ']' . PHP_EOL;
-echo PHP_EOL . "</pre>"; 
+//echo PHP_EOL . "</pre>"; 
 
 // close mysql connection
 mysqli_close($link);
