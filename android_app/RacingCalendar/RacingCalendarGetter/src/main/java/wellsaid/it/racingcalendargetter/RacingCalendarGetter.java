@@ -13,10 +13,9 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class RacingCalendarGetter {
+import static wellsaid.it.racingcalendargetter.RacingCalendarServerUtils.*;
 
-    /* The URL to the server */
-    private static final String SERVER_URL = "http://racingcalendar.altervista.org/select.php/";
+public class RacingCalendarGetter {
 
     /* Helper method to retrieve RacingCalendar object from a JSON server response */
     private static List<Object> jsonArrayToRacingCalendarObject(String table, String responseBody){
@@ -35,31 +34,6 @@ public class RacingCalendarGetter {
          */
         void onRacingCalendarData(List<Object> list);
     }
-
-    /**
-     * Table containing informations on all series types in the database
-     */
-    public static final String SERIES_TYPES_TABLE = "series_types";
-
-    /**
-     * Table containing informations on all series in the database
-     */
-    public static final String SERIES_TABLE = "series";
-
-    /**
-     * Table containing informations on all events in the database
-     */
-    public static final String EVENTS_TABLE = "events";
-
-    /**
-     * Table containing informations on all session types in the database
-     */
-    public static final String SESSION_TYPES_TABLE = "session_types";
-
-    /**
-     * Table containing informations on all sessions in the database
-     */
-    public static final String SESSIONS_TABLE = "sessions";
 
     /**
      * Method to retrieve objects from a table
