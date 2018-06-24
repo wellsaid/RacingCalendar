@@ -1,6 +1,11 @@
 package wellsaid.it.racingcalendargetter;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,16 +16,22 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import static wellsaid.it.racingcalendargetter.RacingCalendarServerUtils.*;
+import static wellsaid.it.racingcalendargetter.RacingCalendar.*;
 
 public class RacingCalendarGetter {
 
+    /* The URL to the server */
+    private static final String SERVER_URL = "http://racingcalendar.altervista.org/select.php/";
+
     /* Helper method to retrieve RacingCalendar object from a JSON server response */
     private static List<Object> jsonArrayToRacingCalendarObject(String table, String responseBody){
-        /* TODO */
-        throw new NotImplementedException();
+        Gson gson = new Gson();
+
+        /* TODO: Choose what objects to parse based on the table */
+        Type collectionType = new TypeToken<ArrayList<RacingCalendar.SeriesType>>(){}.getType();
+
+        return gson.fromJson(responseBody, collectionType);
     }
 
     /**
@@ -53,17 +64,18 @@ public class RacingCalendarGetter {
                            List<String> selectionValues, final DataListener listener) {
 
         /* Check if table is one of the available */
-        if (!Arrays.asList(SERIES_TYPES_TABLE,SERIES_TABLE,
-                EVENTS_TABLE,SESSION_TYPES_TABLE,SESSIONS_TABLE).contains(table)) {
+        if (!Arrays.asList(SERIES_TYPES, SERIES, EVENTS, SESSION_TYPES,SESSIONS).contains(table)) {
             /* if not throw an exception */
             throw new IllegalArgumentException("Invalid table: " + table);
         }
 
         /* Check if selection and selectionValues lists matches */
-        if(selection.size() != selectionValues.size()){
-            /* if not throw an exception */
-            throw new IllegalArgumentException(
-                    "selection and selectionValues array must have the same size");
+        if(selection != null && selectionValues != null) {
+            if (selection.size() != selectionValues.size()) {
+                /* if not throw an exception */
+                throw new IllegalArgumentException(
+                        "selection and selectionValues array must have the same size");
+            }
         }
 
         /* Check if we have a listener to return to */
@@ -83,8 +95,10 @@ public class RacingCalendarGetter {
         }
 
         HttpUrl.Builder urlBuilder = httpUrl.newBuilder();
-        for(int i = 0; i < selectionValues.size(); i++){
-            urlBuilder.addQueryParameter(selection.get(i), selectionValues.get(i));
+        if(selection != null && selectionValues != null) {
+            for (int i = 0; i < selectionValues.size(); i++) {
+                urlBuilder.addQueryParameter(selection.get(i), selectionValues.get(i));
+            }
         }
         String url = urlBuilder.build().toString();
 
