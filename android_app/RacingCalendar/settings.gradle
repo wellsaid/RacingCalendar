@@ -1,1 +1,1 @@
-include ':app', ':RacingCalendarGetter'
+include ':app', ':RacingCalendarGetter', ':RacingCalendarDatabase'
