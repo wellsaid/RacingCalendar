@@ -9,6 +9,9 @@ import java.util.List;
 
 import wellsaid.it.racingcalendardata.RacingCalendar.*;
 
+/**
+ * Class containing all DAOs for the RacingCalendar database
+ */
 public class RacingCalendarDaos {
 
     @Dao
@@ -70,8 +73,6 @@ public class RacingCalendarDaos {
         @Delete
         void delete(SessionType seriesType);
     }
-
-    /* @Entity(primaryKeys = {"shortName","eventID","seriesShortName"}) */
 
     @Dao
     public interface SessionDao {

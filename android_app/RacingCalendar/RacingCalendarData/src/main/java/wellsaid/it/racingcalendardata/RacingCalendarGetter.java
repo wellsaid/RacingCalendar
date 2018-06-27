@@ -118,8 +118,7 @@ public class RacingCalendarGetter {
         /* Parse the url of the request */
         HttpUrl httpUrl = HttpUrl.parse(SERVER_URL+table);
         if(httpUrl == null){
-            System.out.println("[RacingCalendarGetter] server url is invalid!");
-            return;
+            throw new IllegalArgumentException("server url is invalid");
         }
 
         HttpUrl.Builder urlBuilder = httpUrl.newBuilder();
