@@ -1,5 +1,9 @@
 package wellsaid.it.racingcalendardata;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
 import java.util.Date;
 
 /**
@@ -25,9 +29,12 @@ public class RacingCalendar {
     /**
      * Object containing information about a series type
      */
+    @Entity
     public static class SeriesType {
 
-        public String shortName;
+        @PrimaryKey
+        @NonNull public String shortName;
+
         public String completeName;
         public String description;
         public String thumbnailURL;
@@ -55,9 +62,12 @@ public class RacingCalendar {
     /**
      * Object containing information about a series
      */
+    @Entity
     public static class Series {
 
+        @PrimaryKey
         public String shortName;
+
         public String completeName;
         public String seriesType;
         public String description;
@@ -93,6 +103,7 @@ public class RacingCalendar {
     /**
      * Object containing information about a event
      */
+    @Entity(primaryKeys = {"ID","seriesShortName"})
     public static class Event {
 
         public String ID;
@@ -135,9 +146,12 @@ public class RacingCalendar {
     /**
      * Object containing information about a session type
      */
+    @Entity
     public static class SessionType {
 
+        @PrimaryKey
         public String shortName;
+
         public String completeName;
 
         /**
@@ -157,6 +171,7 @@ public class RacingCalendar {
     /**
      * Object containing information about a session type
      */
+    @Entity(primaryKeys = {"shortName","eventID","seriesShortName"})
     public static class Session {
 
         public String shortName;
