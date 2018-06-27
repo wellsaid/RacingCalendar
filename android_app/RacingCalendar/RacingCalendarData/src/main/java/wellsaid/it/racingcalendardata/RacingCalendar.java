@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendargetter;
+package wellsaid.it.racingcalendardata;
 
 import java.util.Date;
 

@@ -1,12 +1,9 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendardata;
 
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
-import wellsaid.it.racingcalendargetter.RacingCalendar;
-import wellsaid.it.racingcalendargetter.RacingCalendarGetter;
 
 import static org.junit.Assert.assertTrue;
 

@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendardatabase;
+package wellsaid.it.racingcalendardata;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("wellsaid.it.racingcalendardatabase.test", appContext.getPackageName());
+        assertEquals("wellsaid.it.racingcalendardata.test", appContext.getPackageName());
     }
 }

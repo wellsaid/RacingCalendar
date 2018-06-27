@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendargetter;
+package wellsaid.it.racingcalendardata;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,7 +19,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static wellsaid.it.racingcalendargetter.RacingCalendar.*;
+import static wellsaid.it.racingcalendardata.RacingCalendar.*;
 
 public class RacingCalendarGetter {
 
