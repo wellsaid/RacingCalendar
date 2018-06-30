@@ -22,7 +22,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation project(':RacingCalendarData')
+    implementation project(':RacingCalendarUtils')
     /* WARNING: Without this gradle fails to sync with:
          * Android dependency 'android.arch.core:runtime' has different version for the compile (1.1.0)
          * and runtime (1.1.1) classpath. You should manually set the same version via DependencyResolution
