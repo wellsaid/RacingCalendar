@@ -21,6 +21,9 @@ import okhttp3.ResponseBody;
 
 import static wellsaid.it.racingcalendardata.RacingCalendar.*;
 
+/**
+ * Class used to retrieve RacingCalendar objects from the online database
+ */
 public class RacingCalendarGetter {
 
     /* The URL to the server */
