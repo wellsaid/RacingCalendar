@@ -175,11 +175,12 @@ public class RacingCalendar {
     @Entity(primaryKeys = {"shortName","eventID","seriesShortName"})
     public static class Session {
 
-        public String shortName;
+        @NonNull public String shortName;
+        @NonNull public String eventID;
+        @NonNull public String seriesShortName;
+
         public String completeName;
         public String sessionType;
-        public String eventID;
-        public String seriesShortName;
         public Date startDateTime;
         public Date endDateTime;
 

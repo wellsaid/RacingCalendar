@@ -80,8 +80,9 @@ public class RacingCalendarDaos {
         List<Session> getAll();
 
         @Query("SELECT * FROM Session WHERE shortName IN (:shortName) " +
+                "AND eventID IN (:eventID)" +
                 "AND seriesShortName IN (:seriesShortName)")
-        Event getByIDAndSeriesShortName(String shortName, String eventID, String seriesShortName);
+        Session getByIDAndSeriesShortName(String shortName, String eventID, String seriesShortName);
 
         @Insert
         void insert(Event seriesType);

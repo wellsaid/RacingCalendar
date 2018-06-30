@@ -8,7 +8,9 @@ import wellsaid.it.racingcalendardata.RacingCalendarDaos.*;
 /**
  * The RacingCalendar database class from which we can obtain all DAOs
  */
-@Database(entities = {SeriesType.class}, version = 1, exportSchema = false)
+@Database(entities =
+            {SeriesType.class, Series.class, Event.class, SessionType.class, Session.class},
+        version = 2, exportSchema = false)
 public abstract class RacingCalendarDatabase extends RoomDatabase {
 
     public abstract SeriesTypeDao getSeriesTypeDao();
