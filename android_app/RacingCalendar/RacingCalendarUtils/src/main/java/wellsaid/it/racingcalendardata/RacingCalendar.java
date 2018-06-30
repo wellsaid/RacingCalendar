@@ -66,7 +66,7 @@ public class RacingCalendar {
     public static class Series {
 
         @PrimaryKey
-        public String shortName;
+        @NonNull public String shortName;
 
         public String completeName;
         public String seriesType;
@@ -106,8 +106,9 @@ public class RacingCalendar {
     @Entity(primaryKeys = {"ID","seriesShortName"})
     public static class Event {
 
-        public String ID;
-        public String seriesShortName;
+        @NonNull public String ID;
+        @NonNull public String seriesShortName;
+
         public String eventShortName;
         public String eventName;
         public String circuitName;
@@ -150,7 +151,7 @@ public class RacingCalendar {
     public static class SessionType {
 
         @PrimaryKey
-        public String shortName;
+        @NonNull public String shortName;
 
         public String completeName;
 
