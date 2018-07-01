@@ -2,6 +2,8 @@ package wellsaid.it.racingcalendardata;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.TypeConverters;
+
 import wellsaid.it.racingcalendardata.RacingCalendar.*;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos.*;
 
@@ -11,6 +13,7 @@ import wellsaid.it.racingcalendardata.RacingCalendarDaos.*;
 @Database(entities =
             {SeriesType.class, Series.class, Event.class, SessionType.class, Session.class},
         version = 2, exportSchema = false)
+@TypeConverters({RacingCalendarDatabaseConverters.class})
 public abstract class RacingCalendarDatabase extends RoomDatabase {
 
     public abstract SeriesTypeDao getSeriesTypeDao();

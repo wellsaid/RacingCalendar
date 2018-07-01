@@ -20,7 +20,7 @@ CREATE TABLE series (
 	description VARCHAR(300),
 	logoURL VARCHAR(100),
 	thumbnailURL VARCHAR(100),
-	FOREIGN KEY (series_types) REFERENCES series_types(shortName)
+	FOREIGN KEY (seriesType) REFERENCES series_types(shortName)
 );
 
 CREATE TABLE events (
@@ -31,7 +31,7 @@ CREATE TABLE events (
 	circuitName VARCHAR(50),
 	startDate DATE,
 	endDate DATE,
-	FOREIGN KEY (series_short_name) REFERENCES series(shortName),
+	FOREIGN KEY (seriesShortName) REFERENCES series(shortName),
 	PRIMARY KEY (ID, seriesShortName)
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE sessions (
 	seriesShortName VARCHAR(10) NOT NULL,
 	startDateTime DATETIME NOT NULL,
 	endDateTime DATETIME,
-	FOREIGN KEY (session_type) REFERENCES session_types(shortName),
-	FOREIGN KEY (event_ID, seriesShortName) REFERENCES events(ID, seriesShortName),
+	FOREIGN KEY (sessionType) REFERENCES session_types(shortName),
+	FOREIGN KEY (eventID, seriesShortName) REFERENCES events(ID, seriesShortName),
 	PRIMARY KEY (shortName, eventID, seriesShortName)
 );

@@ -1,6 +1,7 @@
 package wellsaid.it.racingcalendardata;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
@@ -62,7 +63,9 @@ public class RacingCalendar {
     /**
      * Object containing information about a series
      */
-    @Entity
+    @Entity(foreignKeys = @ForeignKey(entity = SeriesType.class,
+            parentColumns = "shortName",
+            childColumns = "seriesType"))
     public static class Series {
 
         @PrimaryKey
@@ -103,7 +106,10 @@ public class RacingCalendar {
     /**
      * Object containing information about a event
      */
-    @Entity(primaryKeys = {"ID","seriesShortName"})
+    @Entity(primaryKeys = {"ID","seriesShortName"},
+            foreignKeys = @ForeignKey(entity = Series.class,
+                    parentColumns = "shortName",
+                    childColumns = "seriesShortName"))
     public static class Event {
 
         @NonNull public String ID;
@@ -172,7 +178,15 @@ public class RacingCalendar {
     /**
      * Object containing information about a session type
      */
-    @Entity(primaryKeys = {"shortName","eventID","seriesShortName"})
+    @Entity(primaryKeys = {"shortName","eventID","seriesShortName"},
+            foreignKeys = {
+                @ForeignKey(entity = SessionType.class,
+                    parentColumns = "shortName",
+                    childColumns = "sessionType"),
+                @ForeignKey(entity = Event.class,
+                    parentColumns = {"ID","seriesShortName"},
+                    childColumns = {"eventID","seriesShortName"})
+            })
     public static class Session {
 
         @NonNull public String shortName;
