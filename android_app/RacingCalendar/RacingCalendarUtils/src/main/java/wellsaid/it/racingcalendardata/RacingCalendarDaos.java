@@ -3,7 +3,9 @@ package wellsaid.it.racingcalendardata;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import java.util.List;
 
@@ -79,16 +81,33 @@ public class RacingCalendarDaos {
         @Query("SELECT * FROM Session")
         List<Session> getAll();
 
+        @Query("SELECT * FROM Session WHERE notify IS 1")
+        List<Session> getAllNotify();
+
         @Query("SELECT * FROM Session WHERE shortName IN (:shortName) " +
-                "AND eventID IN (:eventID)" +
+                "AND eventID IN (:eventID) " +
                 "AND seriesShortName IN (:seriesShortName)")
-        Session getByIDAndSeriesShortName(String shortName, String eventID, String seriesShortName);
+        Session getByShortNameIDAndSeriesShortName(String shortName,
+                                                   String eventID,
+                                                   String seriesShortName);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insertOrUpdate(Session session);
 
         @Insert
-        void insert(Event seriesType);
+        void insert(Session session);
+
+        @Insert
+        void insertAll(List<Session> sessions);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insertOrUpdateAll(List<Session> sessions);
+
+        @Update
+        void update(Session session);
 
         @Delete
-        void delete(Event seriesType);
+        void delete(Session session);
     }
 
 }

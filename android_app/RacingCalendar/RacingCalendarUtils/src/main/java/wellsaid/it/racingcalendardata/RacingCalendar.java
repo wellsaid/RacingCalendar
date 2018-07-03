@@ -63,9 +63,7 @@ public class RacingCalendar {
     /**
      * Object containing information about a series
      */
-    @Entity(foreignKeys = @ForeignKey(entity = SeriesType.class,
-            parentColumns = "shortName",
-            childColumns = "seriesType"))
+    @Entity
     public static class Series {
 
         @PrimaryKey
@@ -101,15 +99,32 @@ public class RacingCalendar {
             this.thumbnailURL = thumbnailURL;
         }
 
+        /* Overriden to make comparison in lists work right */
+        /**
+         * Compares the passed object to this one
+         * @param obj
+         *     The object we want to compare this with
+         * @return
+         *     True if they are equal, false if they are not
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if(!(obj instanceof Series)){
+                return false;
+            }
+
+            boolean primaryKeysEquals =
+                    this.shortName.equals(((Series) obj).shortName);
+
+            return primaryKeysEquals;
+        }
+
     }
 
     /**
      * Object containing information about a event
      */
-    @Entity(primaryKeys = {"ID","seriesShortName"},
-            foreignKeys = @ForeignKey(entity = Series.class,
-                    parentColumns = "shortName",
-                    childColumns = "seriesShortName"))
+    @Entity(primaryKeys = {"ID","seriesShortName"})
     public static class Event {
 
         @NonNull public String ID;
@@ -148,6 +163,27 @@ public class RacingCalendar {
             this.endDate = endDate;
         }
 
+        /* Overriden to make comparison in lists work right */
+        /**
+         * Compares the passed object to this one
+         * @param obj
+         *     The object we want to compare this with
+         * @return
+         *     True if they are equal, false if they are not
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if(!(obj instanceof Event)){
+                return false;
+            }
+
+            boolean primaryKeysEquals =
+                    this.ID.equals(((Event) obj).ID) &&
+                    this.seriesShortName.equals(((Event) obj).seriesShortName);
+
+            return primaryKeysEquals;
+        }
+
     }
 
     /**
@@ -178,15 +214,7 @@ public class RacingCalendar {
     /**
      * Object containing information about a session type
      */
-    @Entity(primaryKeys = {"shortName","eventID","seriesShortName"},
-            foreignKeys = {
-                @ForeignKey(entity = SessionType.class,
-                    parentColumns = "shortName",
-                    childColumns = "sessionType"),
-                @ForeignKey(entity = Event.class,
-                    parentColumns = {"ID","seriesShortName"},
-                    childColumns = {"eventID","seriesShortName"})
-            })
+    @Entity(primaryKeys = {"shortName","eventID","seriesShortName"})
     public static class Session {
 
         @NonNull public String shortName;
@@ -197,6 +225,8 @@ public class RacingCalendar {
         public String sessionType;
         public Date startDateTime;
         public Date endDateTime;
+
+        boolean notify;
 
         /**
          * Constructor
@@ -223,7 +253,29 @@ public class RacingCalendar {
             this.seriesShortName = seriesShortName;
             this.startDateTime = startDateTime;
             this.endDateTime = endDateTime;
+            this.notify = false;
         }
 
+        /* Overriden to make comparison in lists work right */
+        /**
+         * Compares the passed object to this one
+         * @param obj
+         *     The object we want to compare this with
+         * @return
+         *     True if they are equal, false if they are not
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if(!(obj instanceof Session)){
+                return false;
+            }
+
+            boolean primaryKeysEquals =
+                    this.shortName.equals(((Session) obj).shortName) &&
+                    this.eventID.equals(((Session) obj).eventID) &&
+                    this.seriesShortName.equals(((Session) obj).seriesShortName);
+
+            return primaryKeysEquals;
+        }
     }
 }
