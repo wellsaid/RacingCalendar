@@ -1,2 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="wellsaid.it.racingcalendardata" />
+    package="wellsaid.it.racingcalendardata" >
+
+    <application>
+        <receiver android:name=".RacingCalendarNotifier$RCAlarmReceiver" />
+    </application>
+
+</manifest>

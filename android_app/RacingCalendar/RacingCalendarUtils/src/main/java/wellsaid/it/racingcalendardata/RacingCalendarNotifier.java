@@ -1,10 +1,14 @@
 package wellsaid.it.racingcalendardata;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Class used to manage notification of events
@@ -21,9 +25,14 @@ public class RacingCalendarNotifier {
      */
 
     /* Helper class, it will receive the intent when a notification has to be triggered */
-    private static class RCAlarmReceiver extends BroadcastReceiver {
+    public static class RCAlarmReceiver extends BroadcastReceiver {
+
+        public static int SESSION_START_REQ = 1;
+
         @Override
         public void onReceive(Context context, Intent intent) {
+            Toast.makeText(context, "Eccomi qua!", Toast.LENGTH_LONG).show();
+
             /* TODO: 1. Retrieve session and related objects */
 
             /* TODO: 2. Show notification for the Series/Event/Session */
@@ -88,6 +97,8 @@ public class RacingCalendarNotifier {
 
     /**
      * Removes a session from the notifications list
+     * @param context
+     *     The context in which the method is executed
      * @param session
      *     The session to remove
      */
@@ -117,6 +128,8 @@ public class RacingCalendarNotifier {
 
     /**
      * Removes a list of sessions from the notifications list
+     * @param context
+     *     The context in which the method is executed
      * @param sessions
      *     The list of session to remove
      */
@@ -150,17 +163,39 @@ public class RacingCalendarNotifier {
 
     /**
      * Starts the notification process
+     * @param context
+     *     The context in which the method is executed
      */
-    public static void startNotifications(){
-        /* TODO: 1. Get list of sessions */
+    public static void startNotifications(Context context) throws InterruptedException{
+        /* Get database instance from context */
+        RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
-        /* TODO: 2. Schedule wake up for first element in the list */
+        /* Get the next session */
+        RacingCalendar.Session nextSession = db.getSessionDao().getAll().get(1);
+
+        /* Get the Alarm Service */
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if(alarmManager != null) {
+
+            /* Create an Intent and set the class that will execute when the Alarm triggers */
+            Intent intentAlarm = new Intent(context, RCAlarmReceiver.class);
+
+            /* Schedule wake up */
+            alarmManager.set(AlarmManager.RTC_WAKEUP, nextSession.startDateTime.getTime(),
+                    PendingIntent.getBroadcast(
+                            context,
+                            RCAlarmReceiver.SESSION_START_REQ,
+                            intentAlarm,
+                            PendingIntent.FLAG_UPDATE_CURRENT));
+        }
     }
 
     /**
      * Stops the notification process
+     * @param context
+     *     The context in which the method is executed
      */
-    public static void stopNotifications(){
+    public static void stopNotifications(Context context){
         /* TODO: 1. Clear next scheduled wake up */
     }
 

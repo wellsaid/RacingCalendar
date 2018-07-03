@@ -10,7 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -89,6 +91,23 @@ public class RacingCalendarNotifierTest {
                 "fp1","1","motogp");
 
         assertTrue(maybeSession2 == null);
+    }
+
+    @Test
+    public void startNotificationTest() throws InterruptedException {
+        /* Add session to be notified for a favorite series */
+        RacingCalendar.Session session2 = new RacingCalendar.Session(
+                "fp1",
+                "Free Practice 1",
+                "fp",
+                "1",
+                "motogp",
+                new Date(System.currentTimeMillis() + 5*1000),
+                null);
+        RacingCalendarNotifier.addSessionNotification(context, session2);
+
+        /* Start the notification process */
+        RacingCalendarNotifier.startNotifications(context);
     }
 
     @After

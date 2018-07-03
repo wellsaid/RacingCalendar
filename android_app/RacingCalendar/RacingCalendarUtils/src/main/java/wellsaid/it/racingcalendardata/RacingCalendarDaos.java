@@ -78,7 +78,7 @@ public class RacingCalendarDaos {
 
     @Dao
     public interface SessionDao {
-        @Query("SELECT * FROM Session")
+        @Query("SELECT * FROM Session ORDER BY startDateTime")
         List<Session> getAll();
 
         @Query("SELECT * FROM Session WHERE notify IS 1")
