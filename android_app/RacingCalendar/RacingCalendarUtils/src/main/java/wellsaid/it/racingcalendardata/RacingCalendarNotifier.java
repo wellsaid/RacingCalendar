@@ -1,11 +1,16 @@
 package wellsaid.it.racingcalendardata;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 
 import java.util.List;
 
@@ -14,17 +19,8 @@ import java.util.List;
  */
 public class RacingCalendarNotifier {
 
-    /*
-     * IDEA PER SALVARE SESSIONI:
-     * Utilizzare il database già esistente e impostare un field booleano "notify"
-     * Quando abbiamo bisogno della lista possiamo richiederla ordinata per data/ora di inizio
-     * Quando dobbiamo fare il "pop" possiamo:
-     *   - Impostare "notify" a false se la sessione fa parte di una serie preferita
-     *   - Cancellare la riga se la sessione non fa parte di una serie preferita
-     */
-
     /* This class will be a singleton */
-    private static RacingCalendarNotifier instance = null;
+    private static RacingCalendarNotifier notifierInstance = null;
 
     private RacingCalendarNotifier(){}
 
@@ -34,34 +30,114 @@ public class RacingCalendarNotifier {
      *     The instance of this singleton
      */
     public static RacingCalendarNotifier getInstance(){
-        if(instance == null){
-            instance = new RacingCalendarNotifier();
+        if(notifierInstance == null){
+            notifierInstance = new RacingCalendarNotifier();
         }
 
-        return instance;
+        return notifierInstance;
     }
+
+    /* The unique id to assign to a notification */
+    private static int nextNotificationId = 0;
 
     /* The next scheduled alarm (its PendingIntent) */
     private PendingIntent nextAlarm = null;
 
-    /* Helper class, it will receive the intent when a notification has to be triggered */
+    /**
+     * The BroadcastReceiver for scheduled alarms
+     */
     public static class RCAlarmReceiver extends BroadcastReceiver {
 
-        public static int SESSION_START_REQ = 1;
+        /* Helper method to create notification channel under android 8.0 or above */
+        private void createNotificationChannel(Context context) {
+            /* Create the NotificationChannel, but only on API 26+ */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                CharSequence name = context.getString(R.string.channel_name);
+                String description = context.getString(R.string.channel_description);
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel channel =
+                        new NotificationChannel(
+                                context.getString(R.string.channel_id), name, importance);
+                channel.setDescription(description);
 
+                /* Register the channel with the system */
+                NotificationManager notificationManager =
+                        context.getSystemService(NotificationManager.class);
+                if(notificationManager != null) {
+                    notificationManager.createNotificationChannel(channel);
+                }
+            }
+        }
+
+        /* Helper method to show a notification */
+        private void showNotification(RacingCalendar.Series series,
+                                      RacingCalendar.Event event,
+                                      RacingCalendar.Session session,
+                                      final Context context){
+            createNotificationChannel(context);
+
+            /* Prepare text to show in the notification */
+            String textContent = event.eventName + ": "  + session.completeName
+                    + " " + context.getString(R.string.starting_in) + " "
+                    + "15" + " " + /* TODO: put user selected time instead of 15 (taken from shared preference) */
+                    context.getString(R.string.minutes);
+
+            /* Prepare notification builder */
+            final NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(context, context.getString(R.string.channel_id))
+                            .setContentTitle(series.completeName)
+                            .setContentText(textContent)
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            /* TODO: Set notification tap action (I think you will have it passed from app module) */
+
+            /* TODO: Load the series logo in the notification */
+            builder.setSmallIcon(R.mipmap.series_logo_placeholder);
+
+            /* Show notification */
+            NotificationManagerCompat notificationManager =
+                    NotificationManagerCompat.from(context);
+            notificationManager.notify(nextNotificationId++, builder.build());
+
+        }
+
+        /**
+         * The method executed on scheduled alarm triggers
+         * @param context
+         *     The context in which the method is executed
+         * @param intent
+         *     The intent of this alarm
+         */
         @Override
-        public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "Eccomi qua!", Toast.LENGTH_LONG).show();
+        public void onReceive(final Context context, Intent intent) {
+            /* Get database instance from context */
+            final RacingCalendarDatabase db =
+                    RacingCalendarDatabase.getDatabaseFromContext(context);
 
-            /* TODO: 1. Retrieve session and related objects */
+            /* TODO: Do we need to do it on another thread always when executing from app and not from JUnit ? */
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    /* Retrieve session and related objects */
+                    List<RacingCalendar.Session> sessions = db.getSessionDao().getAllNotify();
+                    RacingCalendar.Session nextSession = sessions.get(0);
+                    RacingCalendar.Event event = db.getEventDao()
+                            .getByIDAndSeriesShortName(
+                                    nextSession.eventID, nextSession.seriesShortName);
+                    RacingCalendar.Series series = db.getSeriesDao()
+                            .getByShortName(nextSession.seriesShortName);
 
-            /* TODO: 2. Show notification for the Series/Event/Session */
+                    /* Show notification for the Series/Event/Session */
+                    showNotification(series, event, nextSession, context);
 
-            /* TODO: 3. Get list of sessions */
+                    if(notifierInstance != null){
+                        /* Remove first session from the list of notify one */
+                        notifierInstance.removeSessionNotification(context, nextSession);
 
-            /* TODO: 4. Pull element from the list */
-
-            /* TODO: 5. Schedule wake up for first element in the list */
+                        /* Schedule wake up for next element in the list */
+                        notifierInstance.startNotifications(context);
+                    }
+                }
+            });
         }
     }
 
@@ -75,7 +151,7 @@ public class RacingCalendarNotifier {
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
         /* Get list of all sessions and clear it */
-        removeSessionNotification(context, db.getSessionDao().getAll());
+        removeSessionNotification(context, db.getSessionDao().getAllNotify());
 
         /* Clear next scheduled alarm */
         stopNotifications(context);
@@ -83,6 +159,7 @@ public class RacingCalendarNotifier {
 
     /**
      * Add a new session to the notifications list
+     * (it immediately starts notification process if it is the first session added)
      * @param context
      *     The context in which the method is executed
      * @param session
@@ -94,11 +171,18 @@ public class RacingCalendarNotifier {
 
         /* Insert (or update) this session to the database as one to be notified */
         session.notify = true;
-        db.getSessionDao().insertOrUpdate(session);
+        RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
+        sessionDao.insertOrUpdate(session);
+
+        /* Immediately start notification process if this is the first session added */
+        if(sessionDao.getAllNotify().size() == 1){
+            startNotifications(context);
+        }
     }
 
     /**
      * Add a list of session to the notifications list
+     * (it immediately starts notification process if it is the first session added)
      * @param context
      *     The context in which the method is executed
      * @param sessions
@@ -113,7 +197,13 @@ public class RacingCalendarNotifier {
         for(RacingCalendar.Session session : sessions){
             session.notify = true;
         }
-        db.getSessionDao().insertOrUpdateAll(sessions);
+        RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
+        sessionDao.insertOrUpdateAll(sessions);
+
+        /* Immediately start notification process if this is the first session added */
+        if(sessionDao.getAllNotify().size() == 1){
+            startNotifications(context);
+        }
     }
 
     /**
@@ -128,7 +218,7 @@ public class RacingCalendarNotifier {
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
         /* Retrieve the list of favorite series */
-        List<RacingCalendar.Series> favSeriesList = db.getSeriesDao().getAll();
+        List<RacingCalendar.Series> favSeriesList = db.getSeriesDao().getAllFavorites();
 
         /* If it is of a favorite series simply put notify = false */
         if(favSeriesList.contains(
@@ -139,7 +229,7 @@ public class RacingCalendarNotifier {
                         null,
                         null))) {
 
-            session.notify = true;
+            session.notify = false;
             db.getSessionDao().update(session);
         /* Otherwise remove it from the database */
         } else {
@@ -160,7 +250,7 @@ public class RacingCalendarNotifier {
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
         /* Retrieve the list of favorite series */
-        List<RacingCalendar.Series> favSeriesList = db.getSeriesDao().getAll();
+        List<RacingCalendar.Series> favSeriesList = db.getSeriesDao().getAllFavorites();
 
         /* For each session passed */
         for(RacingCalendar.Session session : sessions) {
@@ -192,23 +282,25 @@ public class RacingCalendarNotifier {
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
         /* Get the next session */
-        RacingCalendar.Session nextSession = db.getSessionDao().getAll().get(1);
+        List<RacingCalendar.Session> sessions = db.getSessionDao().getAllNotify();
+        if(sessions.size() > 0) {
+            RacingCalendar.Session nextSession = sessions.get(0);
 
-        /* Get the Alarm Service */
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if(alarmManager != null) {
+            /* Get the Alarm Service */
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null) {
 
-            /* Create an Intent and set the class that will execute when the Alarm triggers */
-            Intent intentAlarm = new Intent(context, RCAlarmReceiver.class);
-            nextAlarm = PendingIntent.getBroadcast(
-                    context,
-                    RCAlarmReceiver.SESSION_START_REQ,
-                    intentAlarm,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                /* Create an Intent and set the class that will execute when the Alarm triggers */
+                Intent intentAlarm = new Intent(context, RCAlarmReceiver.class);
+                nextAlarm = PendingIntent.getBroadcast(
+                        context, 0,
+                        intentAlarm,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
 
-            /* Schedule wake up */
-            alarmManager.set(AlarmManager.RTC_WAKEUP,
-                    nextSession.startDateTime.getTime(), nextAlarm);
+                /* Schedule wake up */
+                alarmManager.set(AlarmManager.RTC_WAKEUP,
+                        nextSession.startDateTime.getTime(), nextAlarm);
+            }
         }
     }
 

@@ -36,6 +36,9 @@ public class RacingCalendarDaos {
         @Query("SELECT * FROM Series")
         List<Series> getAll();
 
+        @Query("SELECT * FROM Series WHERE favorite IS 1")
+        List<Series> getAllFavorites();
+
         @Query("SELECT * FROM Series WHERE shortName IN (:shortName)")
         Series getByShortName(String shortName);
 
@@ -78,10 +81,10 @@ public class RacingCalendarDaos {
 
     @Dao
     public interface SessionDao {
-        @Query("SELECT * FROM Session ORDER BY startDateTime")
+        @Query("SELECT * FROM Session")
         List<Session> getAll();
 
-        @Query("SELECT * FROM Session WHERE notify IS 1")
+        @Query("SELECT * FROM Session WHERE notify IS 1 ORDER BY startDateTime")
         List<Session> getAllNotify();
 
         @Query("SELECT * FROM Session WHERE shortName IN (:shortName) " +

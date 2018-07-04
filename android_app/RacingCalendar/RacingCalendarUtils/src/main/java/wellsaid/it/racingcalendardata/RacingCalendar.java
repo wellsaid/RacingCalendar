@@ -75,6 +75,8 @@ public class RacingCalendar {
         public String logoUrl;
         public String thumbnailURL;
 
+        public boolean favorite;
+
         /**
          * Constructor
          * @param shortName
@@ -97,6 +99,7 @@ public class RacingCalendar {
             this.description = description;
             this.logoUrl = logoUrl;
             this.thumbnailURL = thumbnailURL;
+            this.favorite = false;
         }
 
         /* Overriden to make comparison in lists work right */
