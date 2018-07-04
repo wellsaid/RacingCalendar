@@ -23,6 +23,7 @@ public class RacingCalendarNotifierTest {
     private RacingCalendarDaos.SeriesDao seriesDao;
     private RacingCalendarDaos.SessionDao sessionDao;
     private RacingCalendarDatabase database;
+    private RacingCalendarNotifier racingCalendarNotifier;
     private Context context;
 
     @Before
@@ -32,6 +33,7 @@ public class RacingCalendarNotifierTest {
         seriesDao = database.getSeriesDao();
         seriesTypeDao = database.getSeriesTypeDao();
         sessionDao = database.getSessionDao();
+        racingCalendarNotifier = RacingCalendarNotifier.getInstance();
     }
 
     @Test
@@ -56,7 +58,7 @@ public class RacingCalendarNotifierTest {
                 "f1",
                 null,
                 null);
-        RacingCalendarNotifier.addSessionNotification(context, session1);
+        racingCalendarNotifier.addSessionNotification(context, session1);
 
         /* Add session to be notified not for a favorite series */
         RacingCalendar.Session session2 = new RacingCalendar.Session(
@@ -67,7 +69,7 @@ public class RacingCalendarNotifierTest {
                 "motogp",
                 null,
                 null);
-        RacingCalendarNotifier.addSessionNotification(context, session2);
+        racingCalendarNotifier.addSessionNotification(context, session2);
 
         /* See content of the sessions table */
         List<RacingCalendar.Session> sessions = sessionDao.getAll();
@@ -77,7 +79,7 @@ public class RacingCalendarNotifierTest {
         }
 
         /* Remove sessions to be notified */
-        RacingCalendarNotifier.removeSessionNotification(context,
+        racingCalendarNotifier.removeSessionNotification(context,
                 Arrays.asList(session1, session2));
 
         /* Get the two notifications */
@@ -94,7 +96,7 @@ public class RacingCalendarNotifierTest {
     }
 
     @Test
-    public void startNotificationTest() throws InterruptedException {
+    public void startNotificationTest() {
         /* Add session to be notified for a favorite series */
         RacingCalendar.Session session2 = new RacingCalendar.Session(
                 "fp1",
@@ -104,10 +106,38 @@ public class RacingCalendarNotifierTest {
                 "motogp",
                 new Date(System.currentTimeMillis() + 5*1000),
                 null);
-        RacingCalendarNotifier.addSessionNotification(context, session2);
+        racingCalendarNotifier.addSessionNotification(context, session2);
 
         /* Start the notification process */
-        RacingCalendarNotifier.startNotifications(context);
+        racingCalendarNotifier.startNotifications(context);
+    }
+
+    @Test
+    public void startStopNotificationTest() {
+        /* Add session to be notified for a favorite series */
+        RacingCalendar.Session session2 = new RacingCalendar.Session(
+                "fp1",
+                "Free Practice 1",
+                "fp",
+                "1",
+                "motogp",
+                new Date(System.currentTimeMillis() + 10*1000),
+                null);
+        racingCalendarNotifier.addSessionNotification(context, session2);
+
+        /* Start the notification process */
+        racingCalendarNotifier.startNotifications(context);
+
+        /* Sleep for 5 seconds */
+        try {
+            Thread.sleep(5 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /* Stop the notification process */
+        racingCalendarNotifier.clearSessionsNotification(context);
+
     }
 
     @After

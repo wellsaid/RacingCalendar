@@ -8,10 +8,9 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
- * Class used to manage notification of events
+ * A Singleton class used to manage notification of events
  */
 public class RacingCalendarNotifier {
 
@@ -23,6 +22,27 @@ public class RacingCalendarNotifier {
      *   - Impostare "notify" a false se la sessione fa parte di una serie preferita
      *   - Cancellare la riga se la sessione non fa parte di una serie preferita
      */
+
+    /* This class will be a singleton */
+    private static RacingCalendarNotifier instance = null;
+
+    private RacingCalendarNotifier(){}
+
+    /**
+     * Get the singleton instance
+     * @return
+     *     The instance of this singleton
+     */
+    public static RacingCalendarNotifier getInstance(){
+        if(instance == null){
+            instance = new RacingCalendarNotifier();
+        }
+
+        return instance;
+    }
+
+    /* The next scheduled alarm (its PendingIntent) */
+    private PendingIntent nextAlarm = null;
 
     /* Helper class, it will receive the intent when a notification has to be triggered */
     public static class RCAlarmReceiver extends BroadcastReceiver {
@@ -50,14 +70,15 @@ public class RacingCalendarNotifier {
      * @param context
      *     The context in which the method is executed
      */
-    public static void clearSessions(Context context){
+    public void clearSessionsNotification(Context context){
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
         /* Get list of all sessions and clear it */
         removeSessionNotification(context, db.getSessionDao().getAll());
 
-        /* TODO: 2. Clear next scheduled wake up */
+        /* Clear next scheduled alarm */
+        stopNotifications(context);
     }
 
     /**
@@ -67,7 +88,7 @@ public class RacingCalendarNotifier {
      * @param session
      *     The session to add
      */
-    public static void addSessionNotification(Context context, RacingCalendar.Session session){
+    public void addSessionNotification(Context context, RacingCalendar.Session session){
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
@@ -83,7 +104,7 @@ public class RacingCalendarNotifier {
      * @param sessions
      *     The sessions to add
      */
-    public static void addSessionsNotifications(Context context,
+    public void addSessionsNotifications(Context context,
                                                List<RacingCalendar.Session> sessions){
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
@@ -102,7 +123,7 @@ public class RacingCalendarNotifier {
      * @param session
      *     The session to remove
      */
-    public static void removeSessionNotification(Context context, RacingCalendar.Session session){
+    public void removeSessionNotification(Context context, RacingCalendar.Session session){
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
@@ -133,7 +154,7 @@ public class RacingCalendarNotifier {
      * @param sessions
      *     The list of session to remove
      */
-    public static void removeSessionNotification(Context context,
+    public void removeSessionNotification(Context context,
                                                  List<RacingCalendar.Session> sessions){
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
@@ -166,7 +187,7 @@ public class RacingCalendarNotifier {
      * @param context
      *     The context in which the method is executed
      */
-    public static void startNotifications(Context context) throws InterruptedException{
+    public void startNotifications(Context context) {
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
@@ -179,14 +200,15 @@ public class RacingCalendarNotifier {
 
             /* Create an Intent and set the class that will execute when the Alarm triggers */
             Intent intentAlarm = new Intent(context, RCAlarmReceiver.class);
+            nextAlarm = PendingIntent.getBroadcast(
+                    context,
+                    RCAlarmReceiver.SESSION_START_REQ,
+                    intentAlarm,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
 
             /* Schedule wake up */
-            alarmManager.set(AlarmManager.RTC_WAKEUP, nextSession.startDateTime.getTime(),
-                    PendingIntent.getBroadcast(
-                            context,
-                            RCAlarmReceiver.SESSION_START_REQ,
-                            intentAlarm,
-                            PendingIntent.FLAG_UPDATE_CURRENT));
+            alarmManager.set(AlarmManager.RTC_WAKEUP,
+                    nextSession.startDateTime.getTime(), nextAlarm);
         }
     }
 
@@ -195,8 +217,12 @@ public class RacingCalendarNotifier {
      * @param context
      *     The context in which the method is executed
      */
-    public static void stopNotifications(Context context){
-        /* TODO: 1. Clear next scheduled wake up */
+    public void stopNotifications(Context context){
+        /* Clear next scheduled alarm */
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if(alarmManager != null) {
+            alarmManager.cancel(nextAlarm);
+        }
     }
 
 }
