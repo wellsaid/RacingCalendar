@@ -159,7 +159,7 @@ public class RacingCalendarNotifierTest {
 
         /* Sleep for 25 seconds */
         try {
-            Thread.sleep(100 * 1000);
+            Thread.sleep(30 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
