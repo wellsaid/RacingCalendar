@@ -43,7 +43,7 @@ public class RacingCalendarNotifierTest {
                 "Formula 1",
                 "formula",
                 "Words words... other words",
-                "https:\\/\\/upload.wikimedia.org\\/wikipedia\\/en\\/4\\/45\\/F1_logo.svg",
+                "https://upload.wikimedia.org/wikipedia/en/thumb/4/45/F1_logo.svg/800px-F1_logo.svg.png",
                 null);
         series.favorite = true;
         if(!seriesDao.getAll().contains(series))
@@ -55,7 +55,7 @@ public class RacingCalendarNotifierTest {
                 "Moto Grand Prix",
                 "moto",
                 "Words words... other words",
-                "https:\\/\\/upload.wikimedia.org\\/wikipedia\\/commons\\/a\\/a0\\/Moto_Gp_logo.svg",
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Moto_Gp_logo.svg/800px-Moto_Gp_logo.svg.png",
                 null);
         if(!seriesDao.getAll().contains(series1))
             seriesDao.insert(series1);
@@ -159,7 +159,7 @@ public class RacingCalendarNotifierTest {
 
         /* Sleep for 25 seconds */
         try {
-            Thread.sleep(25 * 1000);
+            Thread.sleep(100 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

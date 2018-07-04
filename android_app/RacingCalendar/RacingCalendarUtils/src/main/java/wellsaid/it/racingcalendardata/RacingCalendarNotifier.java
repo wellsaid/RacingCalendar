@@ -7,11 +7,15 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -73,11 +77,11 @@ public class RacingCalendarNotifier {
         private void showNotification(RacingCalendar.Series series,
                                       RacingCalendar.Event event,
                                       RacingCalendar.Session session,
-                                      final Context context){
+                                      final Context context) {
             createNotificationChannel(context);
 
             /* Prepare text to show in the notification */
-            String textContent = event.eventName + ": "  + session.completeName
+            String textContent = event.eventName + ": " + session.completeName
                     + " " + context.getString(R.string.starting_in) + " "
                     + "15" + " " + /* TODO: put user selected time instead of 15 (taken from shared preference) */
                     context.getString(R.string.minutes);
@@ -87,17 +91,15 @@ public class RacingCalendarNotifier {
                     new NotificationCompat.Builder(context, context.getString(R.string.channel_id))
                             .setContentTitle(series.completeName)
                             .setContentText(textContent)
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-            /* TODO: Set notification tap action (I think you will have it passed from app module) */
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                            .setSmallIcon(R.mipmap.ic_launcher);
 
-            /* TODO: Load the series logo in the notification */
-            builder.setSmallIcon(R.mipmap.series_logo_placeholder);
+            /* TODO: Set notification tap action (I think you will have it passed from app module) */
 
             /* Show notification */
             NotificationManagerCompat notificationManager =
                     NotificationManagerCompat.from(context);
             notificationManager.notify(nextNotificationId++, builder.build());
-
         }
 
         /**
