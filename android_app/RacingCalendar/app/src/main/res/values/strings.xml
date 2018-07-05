@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">RacingCalendar</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- tab names -->
+    <string name="home_tab_name">Home</string>
+    <string name="favorite_tab_name">Favorites</string>
+    <string name="all_series_tab_name">All Series</string>
 </resources>
