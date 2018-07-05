@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Notification channel strings -->
+    <string name="channel_id">racing_session</string>
+    <string name="channel_name">RacingCalendar session</string>
+    <string name="channel_description">
+        Provides notification about session from favorite series of the user
+        or for specific session of other series the user asked to be notified
+    </string>
+
+    <!-- Notification strings -->
+    <string name="starting_in">starting in</string>
+    <string name="minutes">minutes</string>
+</resources>
