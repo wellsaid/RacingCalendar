@@ -18,7 +18,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
-import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
 
 /**
  * The Adapter to show series "cards"
@@ -83,8 +82,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         /* Load thumbnail image */
         Picasso.with(context)
                 .load(series.thumbnailURL)
-                // TODO: Add a placeholder in the drawable directory
-                //.placeholder(R.drawable.thumbnail_placeholder)
+                .placeholder(R.drawable.placeholder)
                 .into(holder.backgroundThumbnail);
 
         /* Put series name and type in the text views */

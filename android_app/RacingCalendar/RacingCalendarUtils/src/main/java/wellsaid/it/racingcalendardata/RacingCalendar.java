@@ -13,53 +13,14 @@ import java.util.Date;
  */
 public class RacingCalendar {
 
-    /* Table containing informations on all series types in the database */
-    public static final String SERIES_TYPES = "series_types";
-
     /* Table containing informations on all series in the database */
     public static final String SERIES = "series";
 
     /* Table containing informations on all events in the database */
     public static final String EVENTS = "events";
 
-    /* Table containing informations on all session types in the database */
-    public static final String SESSION_TYPES = "session_types";
-
     /* Table containing informations on all sessions in the database */
     public static final String SESSIONS = "sessions";
-
-    /**
-     * Object containing information about a series type
-     */
-    @Entity
-    public static class SeriesType {
-
-        @PrimaryKey
-        @NonNull public String shortName;
-
-        public String completeName;
-        public String description;
-        public String thumbnailURL;
-
-        /**
-         * Constructor
-         * @param shortName
-         * @param completeName
-         * @param description
-         * @param thumbnailURL
-         */
-        public SeriesType(String shortName,
-                          String completeName,
-                          String description,
-                          String thumbnailURL){
-
-            this.shortName = shortName;
-            this.completeName = completeName;
-            this.description = description;
-            this.thumbnailURL = thumbnailURL;
-        }
-
-    }
 
     /**
      * Object containing information about a series
@@ -186,31 +147,6 @@ public class RacingCalendar {
                     this.seriesShortName.equals(((Event) obj).seriesShortName);
 
             return primaryKeysEquals;
-        }
-
-    }
-
-    /**
-     * Object containing information about a session type
-     */
-    @Entity
-    public static class SessionType {
-
-        @PrimaryKey
-        @NonNull public String shortName;
-
-        public String completeName;
-
-        /**
-         * Constructor
-         * @param shortName
-         * @param completeName
-         */
-        public SessionType(String shortName,
-                          String completeName){
-
-            this.shortName = shortName;
-            this.completeName = completeName;
         }
 
     }

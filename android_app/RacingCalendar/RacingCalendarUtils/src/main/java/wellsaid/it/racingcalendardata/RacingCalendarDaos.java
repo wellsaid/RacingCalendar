@@ -17,21 +17,6 @@ import wellsaid.it.racingcalendardata.RacingCalendar.*;
 public class RacingCalendarDaos {
 
     @Dao
-    public interface SeriesTypeDao {
-        @Query("SELECT * FROM SeriesType")
-        List<SeriesType> getAll();
-
-        @Query("SELECT * FROM SeriesType WHERE shortName IN (:shortName)")
-        SeriesType getByShortName(String shortName);
-
-        @Insert
-        void insert(SeriesType seriesType);
-
-        @Delete
-        void delete(SeriesType seriesType);
-    }
-
-    @Dao
     public interface SeriesDao {
         @Query("SELECT * FROM Series")
         List<Series> getAll();
@@ -65,21 +50,6 @@ public class RacingCalendarDaos {
 
         @Delete
         void delete(Event seriesType);
-    }
-
-    @Dao
-    public interface SessionTypeDao {
-        @Query("SELECT * FROM SessionType")
-        List<SessionType> getAll();
-
-        @Query("SELECT * FROM SessionType WHERE shortName IN (:shortName)")
-        SessionType getByShortName(String shortName);
-
-        @Insert
-        void insert(SessionType seriesType);
-
-        @Delete
-        void delete(SessionType seriesType);
     }
 
     @Dao

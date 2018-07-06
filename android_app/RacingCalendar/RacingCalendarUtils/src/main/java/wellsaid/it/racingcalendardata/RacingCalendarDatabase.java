@@ -12,9 +12,7 @@ import wellsaid.it.racingcalendardata.RacingCalendarDaos.*;
 /**
  * The RacingCalendar database class from which we can obtain all DAOs
  */
-@Database(entities =
-            {SeriesType.class, Series.class, Event.class, SessionType.class, Session.class},
-        version = 1, exportSchema = false)
+@Database(entities = {Series.class, Event.class, Session.class}, version = 1, exportSchema = false)
 @TypeConverters({RacingCalendarDatabaseConverters.class})
 public abstract class RacingCalendarDatabase extends RoomDatabase {
 
@@ -28,13 +26,9 @@ public abstract class RacingCalendarDatabase extends RoomDatabase {
         return db;
     }
 
-    public abstract SeriesTypeDao getSeriesTypeDao();
-
     public abstract SeriesDao getSeriesDao();
 
     public abstract EventDao getEventDao();
-
-    public abstract SessionTypeDao getSessionTypeDao();
 
     public abstract SessionDao getSessionDao();
 }

@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/background_thumbnail"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="@dimen/series_card_height"
         android:scaleType="centerCrop" />
 
     <View
@@ -22,8 +22,8 @@
 
         <ImageButton
             android:id="@+id/favorite_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@android:drawable/btn_star_big_off"
             android:background="@android:color/transparent"
             android:padding="4dp"
@@ -56,55 +56,3 @@
     </RelativeLayout>
 
 </FrameLayout>
-
-<!--
-
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginLeft="4dp"
-android:layout_marginRight="4dp"
-android:layout_marginTop="4dp"
-android:layout_marginBottom="4dp"
-android:clickable="true"
-android:focusable="true"
-android:foreground="?selectableItemBackground">
-
-<FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="bottom" >
-        <TextView
-            android:id="@+id/article_title"
-            android:textAppearance="@style/AppTheme.ArticleTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:paddingLeft="16dp"
-            android:paddingTop="16dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="4dp"
-            android:ellipsize="end"
-            android:maxLines="4" />
-
-        <TextView
-            android:id="@+id/article_subtitle"
-            android:textAppearance="@style/AppTheme.ArticleDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="16dp"
-            android:ellipsize="end" />
-    </LinearLayout>
-</FrameLayout>
-
-</android.support.v7.widget.CardView>
--->

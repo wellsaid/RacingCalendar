@@ -38,17 +38,11 @@ public class RacingCalendarGetter {
         /* Choose what objects to parse based on the table */
         Type listType = null;
         switch(table){
-            case SERIES_TYPES:
-                listType = new TypeToken<ArrayList<RacingCalendar.SeriesType>>(){}.getType();
-                break;
             case SERIES:
                 listType = new TypeToken<ArrayList<RacingCalendar.Series>>(){}.getType();
                 break;
             case EVENTS:
                 listType = new TypeToken<ArrayList<RacingCalendar.Event>>(){}.getType();
-                break;
-            case SESSION_TYPES:
-                listType = new TypeToken<ArrayList<RacingCalendar.SessionType>>(){}.getType();
                 break;
             case SESSIONS:
                 listType = new TypeToken<ArrayList<RacingCalendar.Session>>(){}.getType();
@@ -95,7 +89,7 @@ public class RacingCalendarGetter {
                            List<String> selectionValues, final DataListener listener) {
 
         /* Check if table is one of the available */
-        if (!Arrays.asList(SERIES_TYPES, SERIES, EVENTS, SESSION_TYPES,SESSIONS).contains(table)) {
+        if (!Arrays.asList(SERIES, EVENTS, SESSIONS).contains(table)) {
             /* if not throw an exception */
             throw new IllegalArgumentException("Invalid table: " + table);
         }
@@ -197,30 +191,6 @@ public class RacingCalendarGetter {
     }
 
     /**
-     * Method to retrieve series types from the server
-     * @param shortName
-     *     The value of the primary key of the desired series type (null for all)
-     * @param listener
-     *     The listener to which to return the list of objects
-     */
-    public static void getSeriesTypes(String shortName, final Listener<SeriesType> listener) {
-        List<String> selection = null;
-        List<String> selectionValues = null;
-        if(shortName != null){
-            selection = Arrays.asList("shortName");
-            selectionValues = Arrays.asList(shortName);
-        }
-
-        get(SERIES_TYPES, selection, selectionValues, new DataListener() {
-            @Override
-            public void onRacingCalendarDataReceived(List<Object> list) {
-                listener.onRacingCalendarObjectsReceived(
-                        RacingCalendarGetter.<SeriesType>castList(list));
-            }
-        });
-    }
-
-    /**
      * Method to retrieve series from the server
      * @param shortName
      *     The value of the primary key of the desired series (null for all)
@@ -269,30 +239,6 @@ public class RacingCalendarGetter {
             public void onRacingCalendarDataReceived(List<Object> list) {
                 listener.onRacingCalendarObjectsReceived(
                         RacingCalendarGetter.<Event>castList(list));
-            }
-        });
-    }
-
-    /**
-     * Method to retrieve series from the server
-     * @param shortName
-     *     The value of the primary key of the desired session type (null for all)
-     * @param listener
-     *     The listener to which to return the list of objects
-     */
-    public static void getSessionTypes(String shortName, final Listener<SessionType> listener) {
-        List<String> selection = null;
-        List<String> selectionValues = null;
-        if(shortName != null){
-            selection = Arrays.asList("shortName");
-            selectionValues = Arrays.asList(shortName);
-        }
-
-        get(SESSION_TYPES, selection, selectionValues, new DataListener() {
-            @Override
-            public void onRacingCalendarDataReceived(List<Object> list) {
-                listener.onRacingCalendarObjectsReceived(
-                        RacingCalendarGetter.<SessionType>castList(list));
             }
         });
     }
