@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FavoritesTab">
+    tools:context=".AllSeriesTab">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/error_text_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello from favorite series tab" />
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="@string/error_loading_data"
+        android:textAlignment="center" />
 
-</FrameLayout>
+    <ProgressBar
+        android:id="@+id/progressSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:visibility="gone" />
+
+</RelativeLayout>

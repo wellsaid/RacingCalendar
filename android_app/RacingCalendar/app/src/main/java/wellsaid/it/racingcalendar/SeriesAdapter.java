@@ -51,13 +51,19 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     /* The context in which the adapter is created */
     private Context context;
 
+    /* true if the create want just favorite series to stay in the adapter */
+    private boolean onlyFavorites;
+
     /**
      * Constructor
      * @param context
      *     The context in which the adapter is created
+     * @param onlyFavorites
+     *     True if you want just favorite series to stay in the adapter
      */
-    public SeriesAdapter(Context context){
+    public SeriesAdapter(Context context, boolean onlyFavorites){
         this.context = context;
+        this.onlyFavorites = onlyFavorites;
     }
 
     /**
@@ -92,7 +98,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         /* Take the series we have to show */
         final RacingCalendar.Series series = seriesList.get(position);
 
@@ -115,6 +121,10 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
             @Override
             public void run() {
                 if(seriesDao.getByShortName(series.shortName).favorite){
+                    /* mark the series as favorite */
+                    series.favorite = true;
+
+                    /* change its favorite icon (on main thread) */
                     new Handler(context.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -137,12 +147,27 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                         /* Toggle series favorite status */
                         series.favorite = !series.favorite;
                         seriesDao.insertOrUpdate(series);
+
+                        new Handler(context.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                /* Toggle icon image */
+                                holder.favoriteImageButton.setImageResource(
+                                        (series.favorite)?android.R.drawable.btn_star_big_on:
+                                                android.R.drawable.btn_star_big_off);
+
+                                /* if caller wants just favorites in the adapter */
+                                if(onlyFavorites) {
+                                    /* Remove the element */
+                                    seriesList.remove(position);
+                                    notifyItemRemoved(position);
+                                }
+                            }
+                        });
                     }
                 }).start();
 
-                holder.favoriteImageButton.setImageResource(
-                        (series.favorite)?android.R.drawable.btn_star_big_off:
-                                android.R.drawable.btn_star_big_on);
+
             }
         });
     }

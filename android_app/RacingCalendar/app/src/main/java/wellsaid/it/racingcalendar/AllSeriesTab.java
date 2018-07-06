@@ -87,13 +87,6 @@ public class AllSeriesTab extends Fragment
         }
     }
 
-    /**
-     * Creates a new instance of this fragment
-     */
-    public static AllSeriesTab newInstance() {
-        return new AllSeriesTab();
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,7 +116,7 @@ public class AllSeriesTab extends Fragment
         ButterKnife.bind(this, view);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        seriesAdapter = new SeriesAdapter(getContext());
+        seriesAdapter = new SeriesAdapter(getContext(), false);
         recyclerView.setAdapter(seriesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
