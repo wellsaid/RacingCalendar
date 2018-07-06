@@ -66,14 +66,11 @@ public class AllSeriesTab extends Fragment
     @Override
     public void onRacingCalendarObjectsReceived(final List<RacingCalendar.Series> list) {
         /* When the list has been retrieved: pass it to the adapter */
-        Handler mainHandler = new Handler(getContext().getMainLooper());
-
-        Runnable myRunnable = new Runnable() {
+        new Handler(getContext().getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 seriesAdapter.add(list);
             }
-        };
-        mainHandler.post(myRunnable);
+        });
     }
 }

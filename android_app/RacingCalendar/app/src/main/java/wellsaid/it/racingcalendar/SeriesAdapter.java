@@ -83,6 +83,8 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         /* Load thumbnail image */
         Picasso.with(context)
                 .load(series.thumbnailURL)
+                .resize(holder.backgroundThumbnail.getWidth(),
+                        (int) context.getResources().getDimension(R.dimen.series_card_height))
                 .placeholder(R.drawable.placeholder)
                 .into(holder.backgroundThumbnail);
 
@@ -101,18 +103,12 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                         series.favorite = !series.favorite;
                         RacingCalendarDatabase.getDatabaseFromContext(context)
                                 .getSeriesDao().insertOrUpdate(series);
-
-                        /* Toggle icon (in UI thread) */
-                        new Handler(context.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                holder.favoriteImageButton.setImageResource(
-                                        (series.favorite)?android.R.drawable.star_big_on:
-                                                android.R.drawable.star_big_off);
-                            }
-                        });
                     }
                 }).start();
+
+                holder.favoriteImageButton.setImageResource(
+                        (series.favorite)?android.R.drawable.star_big_on:
+                                android.R.drawable.star_big_off);
             }
         });
     }
