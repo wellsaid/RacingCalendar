@@ -1,6 +1,7 @@
 package wellsaid.it.racingcalendar;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -87,7 +88,6 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
 
         /* Put series name and type in the text views */
         holder.seriesNameTextView.setText(series.completeName);
-        /* TODO: put series type complete name in the series directly */
         holder.seriesTypeTextView.setText(series.seriesType);
 
         /* Set on click listener for the favorite image button */
@@ -102,10 +102,15 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                         RacingCalendarDatabase.getDatabaseFromContext(context)
                                 .getSeriesDao().insertOrUpdate(series);
 
-                        /* Toggle icon */
-                        holder.favoriteImageButton.setImageResource(
-                                (series.favorite)?android.R.drawable.star_big_on:
-                                        android.R.drawable.star_big_off);
+                        /* Toggle icon (in UI thread) */
+                        new Handler(context.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                holder.favoriteImageButton.setImageResource(
+                                        (series.favorite)?android.R.drawable.star_big_on:
+                                                android.R.drawable.star_big_off);
+                            }
+                        });
                     }
                 }).start();
             }
