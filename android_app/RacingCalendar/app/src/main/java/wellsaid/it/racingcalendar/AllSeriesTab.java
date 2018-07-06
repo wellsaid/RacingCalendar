@@ -1,108 +1,79 @@
 package wellsaid.it.racingcalendar;
 
-import android.content.Context;
-import android.net.Uri;
+import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AllSeriesTab.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AllSeriesTab#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class AllSeriesTab extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import wellsaid.it.racingcalendardata.RacingCalendar;
+import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class AllSeriesTab extends Fragment
+        implements RacingCalendarGetter.Listener<RacingCalendar.Series> {
 
-    private OnFragmentInteractionListener mListener;
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
 
-    public AllSeriesTab() {
-        // Required empty public constructor
-    }
+    /* The adapter for the recycler view */
+    private SeriesAdapter seriesAdapter;
+
+    /* required empty constructor */
+    public AllSeriesTab() {}
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AllSeriesTab.
+     * Creates a new instance of this fragment
      */
-    // TODO: Rename and change types and number of parameters
-    public static AllSeriesTab newInstance(String param1, String param2) {
-        AllSeriesTab fragment = new AllSeriesTab();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static AllSeriesTab newInstance() {
+        return new AllSeriesTab();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_all_series_tab, container, false);
-    }
+        /* Inflate the layout for this fragment */
+        View view = inflater.inflate(R.layout.fragment_all_series_tab, container, false);
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+        /* Bind the views of this fragment */
+        ButterKnife.bind(this, view);
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        /*if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
+        /* Associate the adapter and the layout manager to the recycler view */
+        seriesAdapter = new SeriesAdapter(getContext());
+        recyclerView.setAdapter(seriesAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        /* Start retrieval of the series from the server */
+        RacingCalendarGetter.getSeries(null, this);
+
+        /* Return the inflated fragment to the caller */
+        return view;
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
+    public void onRacingCalendarObjectsReceived(final List<RacingCalendar.Series> list) {
+        /* When the list has been retrieved: pass it to the adapter */
+        Handler mainHandler = new Handler(getContext().getMainLooper());
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+                seriesAdapter.add(list);
+            }
+        };
+        mainHandler.post(myRunnable);
     }
 }

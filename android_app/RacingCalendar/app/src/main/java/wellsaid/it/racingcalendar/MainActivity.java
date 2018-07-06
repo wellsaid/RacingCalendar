@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                 case FAVORITES_TAB_POS:
                     return new FavoritesTab();
                 case ALL_TAB_POS:
-                    return new AllSeriesTab();
+                    return AllSeriesTab.newInstance();
                 default:
                     return null;
             }

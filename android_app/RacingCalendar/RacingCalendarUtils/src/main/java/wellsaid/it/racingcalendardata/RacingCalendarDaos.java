@@ -45,6 +45,9 @@ public class RacingCalendarDaos {
         @Insert
         void insert(Series seriesType);
 
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insertOrUpdate(Series seriesType);
+
         @Delete
         void delete(Series seriesType);
     }
