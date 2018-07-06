@@ -10,6 +10,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -24,11 +28,19 @@ public class AllSeriesTab extends Fragment
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
+    @BindView(R.id.error_text_view)
+    TextView errorTextView;
+
+    @BindView(R.id.progressSpinner)
+    ProgressBar progressSpinner;
+
     /* The adapter for the recycler view */
     private SeriesAdapter seriesAdapter;
 
     /* required empty constructor */
     public AllSeriesTab() {}
+
+    /* TODO: if internet returns reload */
 
     /**
      * Creates a new instance of this fragment
@@ -48,6 +60,8 @@ public class AllSeriesTab extends Fragment
         /* Inflate the layout for this fragment */
         View view = inflater.inflate(R.layout.fragment_all_series_tab, container, false);
 
+        /* TODO: Define on click listener for the card to open SeriesDetailActivity */
+
         /* Bind the views of this fragment */
         ButterKnife.bind(this, view);
 
@@ -65,10 +79,23 @@ public class AllSeriesTab extends Fragment
 
     @Override
     public void onRacingCalendarObjectsReceived(final List<RacingCalendar.Series> list) {
-        /* When the list has been retrieved: pass it to the adapter */
+        /* When the list has been retrieved */
         new Handler(getContext().getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
+
+                /* Stop the spinner */
+                progressSpinner.setVisibility(View.GONE);
+
+                /* if there was an error in retrieving data */
+                if(list == null){
+                    recyclerView.setVisibility(View.GONE);
+                    errorTextView.setVisibility(View.VISIBLE);
+                } else {
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
+
+                /* pass the list to the adapter */
                 seriesAdapter.add(list);
             }
         });

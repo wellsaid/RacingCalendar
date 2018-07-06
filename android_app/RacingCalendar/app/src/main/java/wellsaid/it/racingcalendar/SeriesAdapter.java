@@ -18,6 +18,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
+import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 
 /**
@@ -92,6 +93,25 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         holder.seriesNameTextView.setText(series.completeName);
         holder.seriesTypeTextView.setText(series.seriesType);
 
+        /* Set image for the favorite button based to on if the series is favorite */
+        final RacingCalendarDaos.SeriesDao seriesDao =
+                RacingCalendarDatabase.getDatabaseFromContext(context).getSeriesDao();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(seriesDao.getByShortName(series.shortName).favorite){
+                    new Handler(context.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            holder.favoriteImageButton
+                                    .setImageResource(android.R.drawable.btn_star_big_on);
+                        }
+                    });
+                }
+            }
+        }).start();
+
+
         /* Set on click listener for the favorite image button */
         holder.favoriteImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,14 +121,13 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                     public void run() {
                         /* Toggle series favorite status */
                         series.favorite = !series.favorite;
-                        RacingCalendarDatabase.getDatabaseFromContext(context)
-                                .getSeriesDao().insertOrUpdate(series);
+                        seriesDao.insertOrUpdate(series);
                     }
                 }).start();
 
                 holder.favoriteImageButton.setImageResource(
-                        (series.favorite)?android.R.drawable.star_big_on:
-                                android.R.drawable.star_big_off);
+                        (series.favorite)?android.R.drawable.btn_star_big_off:
+                                android.R.drawable.btn_star_big_on);
             }
         });
     }
