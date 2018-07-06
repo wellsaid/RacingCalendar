@@ -60,6 +60,11 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         this.context = context;
     }
 
+    /**
+     * Add a list of series to the adapter
+     * @param newSeriesList
+     *     The series list to add
+     */
     public void add(List<RacingCalendar.Series> newSeriesList){
         if(seriesList == null){
             seriesList = newSeriesList;
@@ -67,6 +72,16 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
             seriesList.addAll(newSeriesList);
         }
         notifyDataSetChanged();
+    }
+
+    /**
+     * Clears all series from the adapter
+     */
+    public void clear(){
+        if(seriesList != null) {
+            seriesList.clear();
+            notifyDataSetChanged();
+        }
     }
 
     @NonNull

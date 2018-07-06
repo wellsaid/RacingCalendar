@@ -1,6 +1,13 @@
 package wellsaid.it.racingcalendar;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.sip.SipSession;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -37,10 +44,48 @@ public class AllSeriesTab extends Fragment
     /* The adapter for the recycler view */
     private SeriesAdapter seriesAdapter;
 
+    /* The listener to call when we retrieve the data */
+    private RacingCalendarGetter.Listener<RacingCalendar.Series> listener;
+
+    /* Will contain the previous network status */
+    private boolean hasBeenConnected;
+
+    /* helper method to check the network connection status */
+    private boolean isConnected(){
+        ConnectivityManager cm =
+                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm != null) {
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            return (netInfo != null && netInfo.isConnected());
+        }
+
+        return false;
+    }
+
     /* required empty constructor */
     public AllSeriesTab() {}
 
-    /* TODO: if internet returns reload */
+    /* Broadcast receiver used to restart loading data when network connection returns */
+    public class NetworkChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            /* Check if we are now online (after being offline) */
+            if(isConnected() && !hasBeenConnected){
+                    /* clear the adapter */
+                    seriesAdapter.clear();
+
+                    /* we are! -> restart loading data */
+                    errorTextView.setVisibility(View.GONE);
+                    progressSpinner.setVisibility(View.VISIBLE);
+
+                    /* Start retrieval of the series from the server */
+                    RacingCalendarGetter.getSeries(null, listener);
+            }
+
+            hasBeenConnected = isConnected();
+        }
+    }
 
     /**
      * Creates a new instance of this fragment
@@ -52,6 +97,18 @@ public class AllSeriesTab extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /* initialize the listener as this object */
+        listener = this;
+
+        /* get the starting network status */
+        hasBeenConnected = isConnected();
+
+        /* register the broadcast receiver to receive connectivity actions
+         * (done after the first response to avoid loading two times at start)
+         */
+        getContext().registerReceiver(new NetworkChangeReceiver(),
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
@@ -71,7 +128,7 @@ public class AllSeriesTab extends Fragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         /* Start retrieval of the series from the server */
-        RacingCalendarGetter.getSeries(null, this);
+        RacingCalendarGetter.getSeries(null, listener);
 
         /* Return the inflated fragment to the caller */
         return view;
@@ -83,7 +140,6 @@ public class AllSeriesTab extends Fragment
         new Handler(getContext().getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-
                 /* Stop the spinner */
                 progressSpinner.setVisibility(View.GONE);
 
