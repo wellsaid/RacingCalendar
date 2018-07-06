@@ -32,6 +32,19 @@ import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 
 public class FavoritesTab extends Fragment {
 
+    /**
+     * Interface to be implemented to listen on favorite status modification
+     */
+    public interface FavoritesChangeListener {
+
+        /**
+         * Called from the adapter when a series changes its favorite status
+         * @param series
+         *     The series which has changed favorite status
+         */
+        void onFavoritesChanged(RacingCalendar.Series series);
+    }
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
@@ -44,8 +57,28 @@ public class FavoritesTab extends Fragment {
     /* The adapter for the recycler view */
     private SeriesAdapter seriesAdapter;
 
+    /* the listener which will receive updates to favorites change status */
+    private FavoritesTab.FavoritesChangeListener listener;
+
     /* required empty constructor */
     public FavoritesTab() {}
+
+    /**
+     * Sets the listener for favorite status changes in this fragment
+     * @param listener
+     */
+    public void setListener(FavoritesChangeListener listener){
+        this.listener = listener;
+    }
+
+    /**
+     * Called when you need to notify to this fragment that a series changed favorite status
+     * @param series
+     *     The series who changed status
+     */
+    public void notifyChangeFavoriteStatus(RacingCalendar.Series series){
+        seriesAdapter.favoriteStatusChanged(series);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +97,15 @@ public class FavoritesTab extends Fragment {
         ButterKnife.bind(this, view);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        seriesAdapter = new SeriesAdapter(getContext(), true);
+        seriesAdapter = new SeriesAdapter(getContext(), true,
+                new SeriesAdapter.FavoritesChangeListener() {
+            @Override
+            public void onFavoritesChanged(RacingCalendar.Series series) {
+                /* when a series in the adapter has changed its favorite status ...
+                 * ... send it to the listener of this fragment */
+                listener.onFavoritesChanged(series);
+            }
+        });
         recyclerView.setAdapter(seriesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 

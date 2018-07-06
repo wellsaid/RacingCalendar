@@ -26,6 +26,20 @@ import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
  */
 public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder> {
 
+    /**
+     * Interface to be implemented to listen on favorite status modification
+     */
+    public interface FavoritesChangeListener {
+
+        /**
+         * Called from the adapter when a series changes its favorite status
+         * @param series
+         *     The series which has changed favorite status
+         */
+        void onFavoritesChanged(RacingCalendar.Series series);
+    }
+
+    /* The view holder for this adapter */
     class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.background_thumbnail)
         ImageView backgroundThumbnail;
@@ -54,16 +68,22 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     /* true if the create want just favorite series to stay in the adapter */
     private boolean onlyFavorites;
 
+    /* the listener which will receive updates to favorites change status */
+    private FavoritesChangeListener listener;
+
     /**
      * Constructor
      * @param context
      *     The context in which the adapter is created
      * @param onlyFavorites
      *     True if you want just favorite series to stay in the adapter
+     * @param listener
+     *     The listener which will receive updates to favorites change status
      */
-    public SeriesAdapter(Context context, boolean onlyFavorites){
+    public SeriesAdapter(Context context, boolean onlyFavorites, FavoritesChangeListener listener){
         this.context = context;
         this.onlyFavorites = onlyFavorites;
+        this.listener = listener;
     }
 
     /**
@@ -77,7 +97,45 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         } else {
             seriesList.addAll(newSeriesList);
         }
-        notifyDataSetChanged();
+
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
+    }
+
+    /**
+     * Modify the corresponding item in the adapter if exists
+     * @param series
+     */
+    public void favoriteStatusChanged(RacingCalendar.Series series){
+        /* Check if the element exists in the adapter */
+        final int position = seriesList.indexOf(series);
+        if(onlyFavorites){ /* case onlyFavorites */
+            if(position != -1) {
+                /* if it exists -> delete it */
+                seriesList.remove(position);
+            } else {
+                /* if it wasn't there -> add it */
+                /* if it exists -> delete it */
+                seriesList.add(series);
+            }
+        } else { /* case not onlyFavorites */
+            if(position != -1) {
+                /* if it was there -> change it */
+                seriesList.get(position).favorite = series.favorite;
+            }
+        }
+
+        /* notify the change */
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     /**
@@ -98,7 +156,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         /* Take the series we have to show */
         final RacingCalendar.Series series = seriesList.get(position);
 
@@ -123,16 +181,17 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                 if(seriesDao.getByShortName(series.shortName).favorite){
                     /* mark the series as favorite */
                     series.favorite = true;
-
-                    /* change its favorite icon (on main thread) */
-                    new Handler(context.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            holder.favoriteImageButton
-                                    .setImageResource(android.R.drawable.btn_star_big_on);
-                        }
-                    });
                 }
+
+                /* change its favorite icon (on main thread) */
+                new Handler(context.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.favoriteImageButton.setImageResource(
+                                (series.favorite)?android.R.drawable.btn_star_big_on:
+                                                  android.R.drawable.btn_star_big_off);
+                    }
+                });
             }
         }).start();
 
@@ -148,6 +207,9 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                         series.favorite = !series.favorite;
                         seriesDao.insertOrUpdate(series);
 
+                        /* call the listener to signal a favorite status change */
+                        listener.onFavoritesChanged(series);
+
                         new Handler(context.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -159,6 +221,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                                 /* if caller wants just favorites in the adapter */
                                 if(onlyFavorites) {
                                     /* Remove the element */
+                                    int position = holder.getAdapterPosition();
                                     seriesList.remove(position);
                                     notifyItemRemoved(position);
                                 }

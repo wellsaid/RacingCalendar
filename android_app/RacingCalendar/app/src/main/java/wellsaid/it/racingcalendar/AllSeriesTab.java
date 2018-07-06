@@ -32,6 +32,19 @@ import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 public class AllSeriesTab extends Fragment
         implements RacingCalendarGetter.Listener<RacingCalendar.Series> {
 
+    /**
+     * Interface to be implemented to listen on favorite status modification
+     */
+    public interface FavoritesChangeListener {
+
+        /**
+         * Called from the adapter when a series changes its favorite status
+         * @param series
+         *     The series which has changed favorite status
+         */
+        void onFavoritesChanged(RacingCalendar.Series series);
+    }
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
@@ -45,7 +58,7 @@ public class AllSeriesTab extends Fragment
     private SeriesAdapter seriesAdapter;
 
     /* The listener to call when we retrieve the data */
-    private RacingCalendarGetter.Listener<RacingCalendar.Series> listener;
+    private RacingCalendarGetter.Listener<RacingCalendar.Series> rcGetterListener;
 
     /* Will contain the previous network status */
     private boolean hasBeenConnected;
@@ -62,8 +75,28 @@ public class AllSeriesTab extends Fragment
         return false;
     }
 
+    /* the listener which will receive updates to favorites change status */
+    private AllSeriesTab.FavoritesChangeListener fcListener;
+
     /* required empty constructor */
     public AllSeriesTab() {}
+
+    /**
+     * Sets the listener for favorite status changes in this fragment
+     * @param listener
+     */
+    public void setListener(AllSeriesTab.FavoritesChangeListener listener){
+        this.fcListener = listener;
+    }
+
+    /**
+     * Called when you need to notify to this fragment that a series changed favorite status
+     * @param series
+     *     The series who changed status
+     */
+    public void notifyChangeFavoriteStatus(RacingCalendar.Series series){
+        seriesAdapter.favoriteStatusChanged(series);
+    }
 
     /* Broadcast receiver used to restart loading data when network connection returns */
     public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -80,7 +113,7 @@ public class AllSeriesTab extends Fragment
                     progressSpinner.setVisibility(View.VISIBLE);
 
                     /* Start retrieval of the series from the server */
-                    RacingCalendarGetter.getSeries(null, listener);
+                    RacingCalendarGetter.getSeries(null, rcGetterListener);
             }
 
             hasBeenConnected = isConnected();
@@ -92,7 +125,7 @@ public class AllSeriesTab extends Fragment
         super.onCreate(savedInstanceState);
 
         /* initialize the listener as this object */
-        listener = this;
+        rcGetterListener = this;
 
         /* get the starting network status */
         hasBeenConnected = isConnected();
@@ -116,12 +149,20 @@ public class AllSeriesTab extends Fragment
         ButterKnife.bind(this, view);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        seriesAdapter = new SeriesAdapter(getContext(), false);
+        seriesAdapter = new SeriesAdapter(getContext(), false,
+                new SeriesAdapter.FavoritesChangeListener() {
+            @Override
+            public void onFavoritesChanged(RacingCalendar.Series series) {
+                /* when a series in the adapter has changed its favorite status ...
+                 * ... send it to the listener of this fragment */
+                fcListener.onFavoritesChanged(series);
+            }
+        });
         recyclerView.setAdapter(seriesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         /* Start retrieval of the series from the server */
-        RacingCalendarGetter.getSeries(null, listener);
+        RacingCalendarGetter.getSeries(null, rcGetterListener);
 
         /* Return the inflated fragment to the caller */
         return view;

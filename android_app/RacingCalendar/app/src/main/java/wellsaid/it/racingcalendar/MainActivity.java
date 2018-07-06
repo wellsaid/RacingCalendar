@@ -14,19 +14,24 @@ import android.view.MenuItem;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import wellsaid.it.racingcalendardata.RacingCalendar;
 
 public class MainActivity extends AppCompatActivity {
 
     /* A FragmentPagerAdapter which will contain all the tabs */
     public class TabsAdapter extends FragmentPagerAdapter {
 
-        /* The number of tabs we want */
-        private static final int numTabs = 3;
-
         /* The desired tabs position */
         static final int HOME_TAB_POS = 0;
         static final int FAVORITES_TAB_POS = 1;
         static final int ALL_TAB_POS = 2;
+
+        /* The number of tabs we want */
+        private static final int numTabs = 3;
+
+        /* they will contain the instances of the tab fragments needed */
+        AllSeriesTab allSeriesTab = null;
+        FavoritesTab favoritesTab = null;
 
         TabsAdapter(FragmentManager fm) {
             super(fm);
@@ -38,9 +43,33 @@ public class MainActivity extends AppCompatActivity {
                 case HOME_TAB_POS:
                     return new HomeTab();
                 case FAVORITES_TAB_POS:
-                    return new FavoritesTab();
+                    favoritesTab = new FavoritesTab();
+                    favoritesTab.setListener(new FavoritesTab.FavoritesChangeListener() {
+                        @Override
+                        public void onFavoritesChanged(RacingCalendar.Series series) {
+                            /* when a series changed favorite status in favorite series tab ...
+                             * inform the all series tab
+                             */
+                            if(allSeriesTab != null){
+                                allSeriesTab.notifyChangeFavoriteStatus(series);
+                            }
+                        }
+                    });
+                    return favoritesTab;
                 case ALL_TAB_POS:
-                    return new AllSeriesTab();
+                    allSeriesTab = new AllSeriesTab();
+                    allSeriesTab.setListener(new AllSeriesTab.FavoritesChangeListener() {
+                        @Override
+                        public void onFavoritesChanged(RacingCalendar.Series series) {
+                            /* when a series changed favorite status in the all series tab ...
+                             * inform the favorite series tab
+                             */
+                            if(favoritesTab != null){
+                                favoritesTab.notifyChangeFavoriteStatus(series);
+                            }
+                        }
+                    });
+                    return allSeriesTab;
                 default:
                     return null;
             }
