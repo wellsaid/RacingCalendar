@@ -2,7 +2,7 @@
 
 // ================= DEFINITIONS =================
 // Tables accessible in the public API
-$available_tables = array("series","events","series_types","session_types","sessions");
+$available_tables = array("series","events","sessions");
 
 // Relative path of the database login detail file (it should be in a secure location)
 $db_file = "./db/db.php";
@@ -42,8 +42,8 @@ if(sizeof($_GET) > 0){
 }
 
 // connect to the mysql database
-require_once($db_file);
-$link = mysqli_connect('localhost', DB_USER, DB_PASSWD, DB_NAME);
+//require_once($db_file);
+$link = mysqli_connect('localhost', 'root', 'root', 'racing_calendar');
 mysqli_set_charset($link,'utf8');
 
 // excecute SQL statement

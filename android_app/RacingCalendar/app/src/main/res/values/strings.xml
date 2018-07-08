@@ -3,7 +3,9 @@
     <string name="title_activity_main">RacingCalendar</string>
     <string name="action_settings">Settings</string>
 
+    <!-- info messages -->
     <string name="error_loading_data">Error loading data</string>
+    <string name="no_favorites">Looks like you have no favorite series :(</string>
 
     <!-- tab names -->
     <string name="home_tab_name">Home</string>

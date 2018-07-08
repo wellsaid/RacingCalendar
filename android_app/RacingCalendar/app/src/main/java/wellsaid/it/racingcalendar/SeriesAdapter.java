@@ -178,7 +178,8 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if(seriesDao.getByShortName(series.shortName).favorite){
+                RacingCalendar.Series seriesDb = seriesDao.getByShortName(series.shortName);
+                if(series != null && series.favorite){
                     /* mark the series as favorite */
                     series.favorite = true;
                 }
@@ -207,9 +208,6 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                         series.favorite = !series.favorite;
                         seriesDao.insertOrUpdate(series);
 
-                        /* call the listener to signal a favorite status change */
-                        listener.onFavoritesChanged(series);
-
                         new Handler(context.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -225,6 +223,9 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                                     seriesList.remove(position);
                                     notifyItemRemoved(position);
                                 }
+
+                                /* call the listener to signal a favorite status change */
+                                listener.onFavoritesChanged(series);
                             }
                         });
                     }

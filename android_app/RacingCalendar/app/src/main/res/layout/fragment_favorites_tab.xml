@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:visibility="gone"
-        android:text="@string/error_loading_data"
+        android:text="@string/no_favorites"
         android:textAlignment="center" />
 
     <ProgressBar

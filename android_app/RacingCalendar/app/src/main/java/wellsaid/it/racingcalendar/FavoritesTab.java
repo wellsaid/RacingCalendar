@@ -1,17 +1,8 @@
 package wellsaid.it.racingcalendar;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.sip.SipSession;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,15 +11,12 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
-import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 
 public class FavoritesTab extends Fragment {
 
@@ -63,6 +51,26 @@ public class FavoritesTab extends Fragment {
     /* required empty constructor */
     public FavoritesTab() {}
 
+    /* helper method to toggle error text view and recycler view */
+    private void errorDataToggle(){
+        new Handler(getContext().getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                /* if you have no favorites */
+                if (seriesAdapter.getItemCount() == 0) {
+                    /* show the error text view */
+                    recyclerView.setVisibility(View.GONE);
+                    errorTextView.setVisibility(View.VISIBLE);
+                    /* if you now have some favorites */
+                } else if (seriesAdapter.getItemCount() == 1) {
+                    /* show the recycler view */
+                    recyclerView.setVisibility(View.VISIBLE);
+                    errorTextView.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
     /**
      * Sets the listener for favorite status changes in this fragment
      * @param listener
@@ -78,6 +86,8 @@ public class FavoritesTab extends Fragment {
      */
     public void notifyChangeFavoriteStatus(RacingCalendar.Series series){
         seriesAdapter.favoriteStatusChanged(series);
+
+        errorDataToggle();
     }
 
     @Override
@@ -89,7 +99,7 @@ public class FavoritesTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         /* Inflate the layout for this fragment */
-        View view = inflater.inflate(R.layout.fragment_all_series_tab, container, false);
+        View view = inflater.inflate(R.layout.fragment_favorites_tab, container, false);
 
         /* TODO: Define on click listener for the card to open SeriesDetailActivity */
 
@@ -104,6 +114,8 @@ public class FavoritesTab extends Fragment {
                 /* when a series in the adapter has changed its favorite status ...
                  * ... send it to the listener of this fragment */
                 listener.onFavoritesChanged(series);
+
+                errorDataToggle();
             }
         });
         recyclerView.setAdapter(seriesAdapter);
@@ -123,9 +135,14 @@ public class FavoritesTab extends Fragment {
                         /* Stop the spinner */
                         progressSpinner.setVisibility(View.GONE);
 
+                        /* if we have no favorite series ... */
+                        if(seriesList == null || seriesList.size() == 0) {
+                            /* ... show an info in the error text view1 */
+                            errorTextView.setVisibility(View.VISIBLE);
+                        }
+
                         /* if there was an error in retrieving data */
                         if(seriesList == null){
-                            recyclerView.setVisibility(View.GONE);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else {
                             recyclerView.setVisibility(View.VISIBLE);
