@@ -20,6 +20,8 @@ import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
+import wellsaid.it.racingcalendardata.RacingCalendarGetter;
+import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
 
 /**
  * The Adapter to show series "cards"
@@ -71,6 +73,83 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     /* the listener which will receive updates to favorites change status */
     private FavoritesChangeListener listener;
 
+    /* the DAO objects used to interact with the database */
+    private RacingCalendarDaos.SeriesDao seriesDao;
+    private RacingCalendarDaos.EventDao eventDao;
+    private RacingCalendarDaos.SessionDao sessionDao;
+
+    /* the notifier object */
+    private RacingCalendarNotifier racingCalendarNotifier;
+
+    /* helper method to perform operations when a series becomes favorite or un-favorite */
+    private void seriesFavoriteStatusChanged(final RacingCalendar.Series series,
+                                            final int position){
+        /* if the series just becomed favorite */
+        if(series.favorite){
+            /* add it to the local database */
+            seriesDao.insertOrUpdate(series);
+
+            /* download and add all its events in the local database */
+            RacingCalendarGetter.getEventsOfSeries(series.shortName,
+                    new RacingCalendarGetter.Listener<RacingCalendar.Event>() {
+                @Override
+                public void onRacingCalendarObjectsReceived(List<RacingCalendar.Event> list) {
+                    /* when ready load them into the database */
+                    eventDao.insertAll(list);
+
+                    /* download and add all its sessions in the local database */
+                    RacingCalendarGetter.getSessionOfSeries(series.shortName,
+                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
+                                @Override
+                                public void onRacingCalendarObjectsReceived(
+                                        List<RacingCalendar.Session> list) {
+                                    /* when ready load the into the database */
+                                    sessionDao.insertAll(list);
+
+                                    /* subscribe to all */
+                                    racingCalendarNotifier.addSessionsNotifications(context, list);
+                                    /* TODO: Subsribe based on user settings (all, just race ...) */
+                                }
+                            });
+                }
+            });
+        /* if the series just becomed un-favorite */
+        } else {
+            /* un-subscribe from all sessions */
+            racingCalendarNotifier.removeSessionNotifications(context,
+                    sessionDao.getAllOfSeries(series.shortName));
+
+            /* remove all sessions of that series from local database */
+            sessionDao.deleteAllOfSeries(series.shortName);
+
+            /* remove all events of that series from local database */
+            eventDao.deleteAllOfSeries(series.shortName);
+
+            /* remove it from the local database */
+            seriesDao.delete(series);
+
+            new Handler(context.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    /* if caller wants just favorites in the adapter */
+                    if (onlyFavorites) {
+                        /* Remove the element */
+                        seriesList.remove(position);
+                        notifyItemRemoved(position);
+                    }
+                }
+            });
+        }
+
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                /* call the listener to signal a favorite status change */
+                listener.onFavoritesChanged(series);
+            }
+        });
+    }
+
     /**
      * Constructor
      * @param context
@@ -84,6 +163,13 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         this.context = context;
         this.onlyFavorites = onlyFavorites;
         this.listener = listener;
+
+        RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
+        this.seriesDao = db.getSeriesDao();
+        this.eventDao = db.getEventDao();
+        this.sessionDao = db.getSessionDao();
+
+        this.racingCalendarNotifier = RacingCalendarNotifier.getInstance();
     }
 
     /**
@@ -173,13 +259,11 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         holder.seriesTypeTextView.setText(series.seriesType);
 
         /* Set image for the favorite button based to on if the series is favorite */
-        final RacingCalendarDaos.SeriesDao seriesDao =
-                RacingCalendarDatabase.getDatabaseFromContext(context).getSeriesDao();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 RacingCalendar.Series seriesDb = seriesDao.getByShortName(series.shortName);
-                if(series != null && series.favorite){
+                if(seriesDb != null && seriesDb.favorite){
                     /* mark the series as favorite */
                     series.favorite = true;
                 }
@@ -206,32 +290,19 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                     public void run() {
                         /* Toggle series favorite status */
                         series.favorite = !series.favorite;
-                        seriesDao.insertOrUpdate(series);
+                        seriesFavoriteStatusChanged(series, holder.getAdapterPosition());
 
                         new Handler(context.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
                                 /* Toggle icon image */
                                 holder.favoriteImageButton.setImageResource(
-                                        (series.favorite)?android.R.drawable.btn_star_big_on:
+                                        (series.favorite) ? android.R.drawable.btn_star_big_on :
                                                 android.R.drawable.btn_star_big_off);
-
-                                /* if caller wants just favorites in the adapter */
-                                if(onlyFavorites) {
-                                    /* Remove the element */
-                                    int position = holder.getAdapterPosition();
-                                    seriesList.remove(position);
-                                    notifyItemRemoved(position);
-                                }
-
-                                /* call the listener to signal a favorite status change */
-                                listener.onFavoritesChanged(series);
                             }
                         });
                     }
                 }).start();
-
-
             }
         });
     }

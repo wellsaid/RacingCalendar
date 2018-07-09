@@ -48,14 +48,23 @@ public class RacingCalendarDaos {
         @Insert
         void insert(Event seriesType);
 
+        @Insert
+        void insertAll(List<Event> seriesType);
+
         @Delete
         void delete(Event seriesType);
+
+        @Query("DELETE FROM Event WHERE seriesShortName IN (:seriesShortName)")
+        void deleteAllOfSeries(String seriesShortName);
     }
 
     @Dao
     public interface SessionDao {
         @Query("SELECT * FROM Session")
         List<Session> getAll();
+
+        @Query("SELECT * FROM Session WHERE seriesShortName IN (:seriesShortName)")
+        List<Session> getAllOfSeries(String seriesShortName);
 
         @Query("SELECT * FROM Session WHERE notify IS 1 ORDER BY startDateTime")
         List<Session> getAllNotify();
@@ -84,6 +93,9 @@ public class RacingCalendarDaos {
 
         @Delete
         void delete(Session session);
+
+        @Query("DELETE FROM Session WHERE seriesShortName IN (:seriesShortName)")
+        void deleteAllOfSeries(String seriesShortName);
     }
 
 }

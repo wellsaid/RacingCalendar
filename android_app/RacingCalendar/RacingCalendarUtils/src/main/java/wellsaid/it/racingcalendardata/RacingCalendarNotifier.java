@@ -111,7 +111,6 @@ public class RacingCalendarNotifier {
             final RacingCalendarDatabase db =
                     RacingCalendarDatabase.getDatabaseFromContext(context);
 
-            /* TODO: Do we need to do it on another thread always when executing from app and not from JUnit ? */
             AsyncTask.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -149,7 +148,7 @@ public class RacingCalendarNotifier {
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
         /* Get list of all sessions and clear it */
-        removeSessionNotification(context, db.getSessionDao().getAllNotify());
+        removeSessionNotifications(context, db.getSessionDao().getAllNotify());
 
         /* Clear next scheduled alarm */
         stopNotifications(context);
@@ -242,7 +241,7 @@ public class RacingCalendarNotifier {
      * @param sessions
      *     The list of session to remove
      */
-    public void removeSessionNotification(Context context,
+    public void removeSessionNotifications(Context context,
                                                  List<RacingCalendar.Session> sessions){
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);

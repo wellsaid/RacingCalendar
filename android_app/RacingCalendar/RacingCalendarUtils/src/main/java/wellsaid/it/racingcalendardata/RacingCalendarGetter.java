@@ -244,6 +244,30 @@ public class RacingCalendarGetter {
     }
 
     /**
+     * Method to retrieve all events of a series from the server
+     * @param seriesShortName
+     *     The series of the of the desired series (null for all)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static void getEventsOfSeries(String seriesShortName, final Listener<Event> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(seriesShortName != null){
+            selection = Arrays.asList("seriesShortName");
+            selectionValues = Arrays.asList(seriesShortName);
+        }
+
+        get(EVENTS, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<Event>castList(list));
+            }
+        });
+    }
+
+    /**
      * Method to retrieve series from the server
      * @param shortName
      *     The short name of the desired session (null for all)
@@ -264,6 +288,32 @@ public class RacingCalendarGetter {
         if(shortName != null && seriesShortName != null && eventID != null){
             selection = Arrays.asList("shortName" ,"seriesShortName","eventID");
             selectionValues = Arrays.asList(shortName, seriesShortName, eventID);
+        }
+
+        get(SESSIONS, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<Session>castList(list));
+            }
+        });
+    }
+
+    /**
+     * Method to retrieve series from the server
+     * @param seriesShortName
+     *     The short name of the series of desired session (null for all)
+     *     (togheter with eventID and shortName is the primary key)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static void getSessionOfSeries(String seriesShortName,
+                                          final Listener<Session> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(seriesShortName != null){
+            selection = Arrays.asList("seriesShortName");
+            selectionValues = Arrays.asList(seriesShortName);
         }
 
         get(SESSIONS, selection, selectionValues, new DataListener() {
