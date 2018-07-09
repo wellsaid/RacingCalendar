@@ -190,15 +190,18 @@ public class RacingCalendarNotifier {
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
+        /* get initial number of sessions to notify */
+        RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
+        int prevSessions = sessionDao.getAllNotify().size();
+
         /* Insert (or update) this sessions to the database as one to be notified */
         for(RacingCalendar.Session session : sessions){
             session.notify = true;
         }
-        RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
         sessionDao.insertOrUpdateAll(sessions);
 
-        /* Immediately start notification process if this is the first session added */
-        if(sessionDao.getAllNotify().size() == 1){
+        /* Immediately start notification process if we had 0 session and now we have some*/
+        if(prevSessions == 0 && sessionDao.getAllNotify().size() > 0){
             startNotifications(context);
         }
     }
@@ -296,7 +299,8 @@ public class RacingCalendarNotifier {
 
                 /* Schedule wake up */
                 alarmManager.set(AlarmManager.RTC_WAKEUP,
-                        nextSession.startDateTime.getTime(), nextAlarm);
+                        nextSession.startDateTime.getTime() - 0, nextAlarm);
+                /* TODO: put user selected time instead of 0 (taken from shared preference) */
             }
         }
     }
