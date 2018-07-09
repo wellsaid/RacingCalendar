@@ -95,7 +95,6 @@ public class RacingCalendar {
         @NonNull public String ID;
         @NonNull public String seriesShortName;
 
-        public String eventShortName;
         public String eventName;
         public String circuitName;
         public Date startDate;
@@ -105,7 +104,6 @@ public class RacingCalendar {
          * Constructor
          * @param ID
          * @param seriesShortName
-         * @param eventShortName
          * @param eventName
          * @param circuitName
          * @param startDate
@@ -113,7 +111,6 @@ public class RacingCalendar {
          */
         public Event(String ID,
                       String seriesShortName,
-                      String eventShortName,
                       String eventName,
                       String circuitName,
                       Date startDate,
@@ -121,7 +118,6 @@ public class RacingCalendar {
 
             this.ID = ID;
             this.seriesShortName = seriesShortName;
-            this.eventShortName = eventShortName;
             this.eventName = eventName;
             this.circuitName = circuitName;
             this.startDate = startDate;

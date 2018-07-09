@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         /* they will contain the instances of the tab fragments needed */
         AllSeriesTab allSeriesTab = null;
         FavoritesTab favoritesTab = null;
+        HomeTab homeTab = null;
 
         TabsAdapter(FragmentManager fm) {
             super(fm);
@@ -41,17 +42,19 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case HOME_TAB_POS:
-                    return new HomeTab();
+                    homeTab = new HomeTab();
+                    return homeTab;
                 case FAVORITES_TAB_POS:
                     favoritesTab = new FavoritesTab();
                     favoritesTab.setListener(new FavoritesTab.FavoritesChangeListener() {
                         @Override
                         public void onFavoritesChanged(RacingCalendar.Series series) {
                             /* when a series changed favorite status in favorite series tab ...
-                             * inform the all series tab
+                             * inform the all series and home tabs
                              */
                             if(allSeriesTab != null){
                                 allSeriesTab.notifyChangeFavoriteStatus(series);
+                                homeTab.notifyChangeFavoriteStatus(series);
                             }
                         }
                     });
@@ -62,10 +65,11 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onFavoritesChanged(RacingCalendar.Series series) {
                             /* when a series changed favorite status in the all series tab ...
-                             * inform the favorite series tab
+                             * inform the favorite series and home tabs
                              */
                             if(favoritesTab != null){
                                 favoritesTab.notifyChangeFavoriteStatus(series);
+                                homeTab.notifyChangeFavoriteStatus(series);
                             }
                         }
                     });

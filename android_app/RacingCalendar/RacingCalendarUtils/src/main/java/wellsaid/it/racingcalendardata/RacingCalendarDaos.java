@@ -42,6 +42,9 @@ public class RacingCalendarDaos {
         @Query("SELECT * FROM Event")
         List<Event> getAll();
 
+        @Query("SELECT * FROM Event WHERE seriesShortName IN (:seriesShortName)")
+        List<Event> getAllOfSeries(String seriesShortName);
+
         @Query("SELECT * FROM Event WHERE ID IN (:ID) AND seriesShortName IN (:seriesShortName)")
         Event getByIDAndSeriesShortName(String ID, String seriesShortName);
 
@@ -65,6 +68,10 @@ public class RacingCalendarDaos {
 
         @Query("SELECT * FROM Session WHERE seriesShortName IN (:seriesShortName)")
         List<Session> getAllOfSeries(String seriesShortName);
+
+        @Query("SELECT * FROM Session WHERE eventID IN (:eventID) " +
+                "AND seriesShortName IN (:serieShortName)")
+        List<Session> getAllOfEvent(String eventID, String serieShortName);
 
         @Query("SELECT * FROM Session WHERE notify IS 1 ORDER BY startDateTime")
         List<Session> getAllNotify();

@@ -33,4 +33,13 @@
         <item name="android:textSize">18dp</item>
     </style>
 
+    <style name="AppTheme.EventSeriesNameText" parent="AppTheme.SeriesNameText">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.EventSeriesTypeText" parent="AppTheme.SeriesTypeText">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.EventSeriesTimes" parent="AppTheme.EventSeriesTypeText" />
 </resources>

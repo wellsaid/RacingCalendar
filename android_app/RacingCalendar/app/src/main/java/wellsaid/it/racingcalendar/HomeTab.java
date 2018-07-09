@@ -1,108 +1,132 @@
 package wellsaid.it.racingcalendar;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeTab.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HomeTab#newInstance} factory method to
- * create an instance of this fragment.
- */
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import wellsaid.it.racingcalendardata.RacingCalendar;
+import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
+
 public class HomeTab extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
 
-    private OnFragmentInteractionListener mListener;
+    @BindView(R.id.error_text_view)
+    TextView errorTextView;
 
-    public HomeTab() {
-        // Required empty public constructor
+    @BindView(R.id.progressSpinner)
+    ProgressBar progressSpinner;
+
+    /* The adapter for the recycler view */
+    private EventAdapter eventAdapter;
+
+    /* required empty constructor */
+    public HomeTab() {}
+
+    /* helper method to toggle error text view and recycler view */
+    private void errorDataToggle(){
+        new Handler(getContext().getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                /* if you have no favorites */
+                if (eventAdapter.getItemCount() == 0) {
+                    /* show the error text view */
+                    recyclerView.setVisibility(View.GONE);
+                    errorTextView.setVisibility(View.VISIBLE);
+                    /* if you now have some favorites */
+                } else {
+                    /* show the recycler view */
+                    recyclerView.setVisibility(View.VISIBLE);
+                    errorTextView.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeTab.
+     * Called when you need to notify to this fragment that a series changed favorite status
+     * @param series
+     *     The series who changed status
      */
-    // TODO: Rename and change types and number of parameters
-    public static HomeTab newInstance(String param1, String param2) {
-        HomeTab fragment = new HomeTab();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public void notifyChangeFavoriteStatus(RacingCalendar.Series series){
+        if(!series.favorite) {
+            eventAdapter.notifyChangeFavoriteStatus(series);
+
+            errorDataToggle();
+        }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home_tab, container, false);
-    }
+        /* Inflate the layout for this fragment */
+        View view = inflater.inflate(R.layout.fragment_home_tab, container, false);
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+        /* TODO: Define on click listener for the card to open EventDetailActivity */
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        /*if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
-    }
+        /* Bind the views of this fragment */
+        ButterKnife.bind(this, view);
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
+        /* Associate the adapter and the layout manager to the recycler view */
+        eventAdapter = new EventAdapter(getContext());
+        recyclerView.setAdapter(eventAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        /* Start retrieval of the events from the local database */
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<RacingCalendar.Event> eventList = RacingCalendarDatabase
+                        .getDatabaseFromContext(getContext()).getEventDao().getAll();
+
+                /* When the list has been retrieved */
+                new Handler(getContext().getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        /* Stop the spinner */
+                        progressSpinner.setVisibility(View.GONE);
+
+                        /* if we have no favorite series ... */
+                        if(eventList == null || eventList.size() == 0) {
+                            /* ... show an info in the error text view1 */
+                            errorTextView.setVisibility(View.VISIBLE);
+                        }
+
+                        /* if we have no favorite series ... */
+                        if(eventList == null || eventList.size() == 0) {
+                            /* ... show an info in the error text view1 */
+                            errorTextView.setVisibility(View.VISIBLE);
+                            /* ... otherwise */
+                        } else {
+                            /* ... show the recycler view */
+                            recyclerView.setVisibility(View.VISIBLE);
+                        }
+
+                        /* pass the list to the adapter */
+                        eventAdapter.add(eventList);
+                    }
+                });
+            }
+        }).start();
+
+        /* Return the inflated fragment to the caller */
+        return view;
     }
 }

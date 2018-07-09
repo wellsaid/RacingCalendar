@@ -11,4 +11,7 @@
     <string name="home_tab_name">Home</string>
     <string name="favorite_tab_name">Favorites</string>
     <string name="all_series_tab_name">All Series</string>
+
+    <string name="times">Times</string>
+    <string name="dates">Dates</string>
 </resources>

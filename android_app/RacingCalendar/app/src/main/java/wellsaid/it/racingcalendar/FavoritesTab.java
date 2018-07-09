@@ -62,7 +62,7 @@ public class FavoritesTab extends Fragment {
                     recyclerView.setVisibility(View.GONE);
                     errorTextView.setVisibility(View.VISIBLE);
                     /* if you now have some favorites */
-                } else if (seriesAdapter.getItemCount() == 1) {
+                } else {
                     /* show the recycler view */
                     recyclerView.setVisibility(View.VISIBLE);
                     errorTextView.setVisibility(View.GONE);
@@ -139,12 +139,9 @@ public class FavoritesTab extends Fragment {
                         if(seriesList == null || seriesList.size() == 0) {
                             /* ... show an info in the error text view1 */
                             errorTextView.setVisibility(View.VISIBLE);
-                        }
-
-                        /* if there was an error in retrieving data */
-                        if(seriesList == null){
-                            errorTextView.setVisibility(View.VISIBLE);
+                        /* ... otherwise */
                         } else {
+                            /* ... show the recycler view */
                             recyclerView.setVisibility(View.VISIBLE);
                         }
 
