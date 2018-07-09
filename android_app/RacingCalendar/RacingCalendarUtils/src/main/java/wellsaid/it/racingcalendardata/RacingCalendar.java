@@ -34,7 +34,7 @@ public class RacingCalendar {
         public String completeName;
         public String seriesType;
         public String description;
-        public String logoUrl;
+        public String logoURL;
         public String thumbnailURL;
 
         public boolean favorite;
@@ -45,21 +45,21 @@ public class RacingCalendar {
          * @param completeName
          * @param seriesType
          * @param description
-         * @param logoUrl
+         * @param logoURL
          * @param thumbnailURL
          */
         public Series(String shortName,
                       String completeName,
                       String seriesType,
                       String description,
-                      String logoUrl,
+                      String logoURL,
                       String thumbnailURL){
 
             this.shortName = shortName;
             this.completeName = completeName;
             this.seriesType = seriesType;
             this.description = description;
-            this.logoUrl = logoUrl;
+            this.logoURL = logoURL;
             this.thumbnailURL = thumbnailURL;
             this.favorite = false;
         }

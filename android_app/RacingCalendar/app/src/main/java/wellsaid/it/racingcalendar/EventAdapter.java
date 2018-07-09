@@ -17,6 +17,7 @@ import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -35,8 +36,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* The view holder for this adapter */
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.series_type_icon)
-        ImageView seriesTypeIcon;
+        @BindView(R.id.series_logo_image_view)
+        ImageView seriesLogoIcon;
 
         @BindView(R.id.event_name_text_view)
         TextView eventNameTextView;
@@ -69,18 +70,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
     /* the notifier object */
     private RacingCalendarNotifier racingCalendarNotifier;
-
-    /* helper method to obtain the drawable based on series type */
-    private int getResourceBasedOnType(String seriesType){
-        switch (seriesType){
-            /*case "Formula":
-                return R.drawable.formula_type_icon;
-            case "Motorcycle circuit":
-                return R.drawable.moto_circuit_type_icon;*/
-            default:
-                return android.R.drawable.stat_notify_error;
-        }
-    }
 
     /**
      * Called when you need to notify to this fragment that a series changed favorite status
@@ -132,6 +121,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             eventsList.addAll(newEventList);
         }
 
+        eventsList.sort(new Comparator<RacingCalendar.Event>() {
+            @Override
+            public int compare(RacingCalendar.Event event, RacingCalendar.Event event1) {
+                return event.startDate.compareTo(event1.startDate);
+            }
+        });
+
         new Handler(context.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -153,7 +149,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_card, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.event_card, parent, false);
         return new ViewHolder(view);
     }
 
@@ -173,8 +170,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                     @Override
                     public void run() {
                         /* Fill views of the element at position */
-                        holder.seriesTypeIcon.setImageResource(
-                                getResourceBasedOnType(series.seriesType));
+                        Picasso.with(context)
+                                .load(series.logoURL)
+                                .resize(holder.seriesLogoIcon.getWidth(),
+                                        (int) context.getResources().getDimension(R.dimen.event_card_height))
+                                .centerInside()
+                                .placeholder(R.drawable.placeholder)
+                                .into(holder.seriesLogoIcon);
 
                         holder.eventNameTextView.setText(event.eventName);
 
@@ -196,6 +198,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 if(sessionDao.getAllOfEvent(event.ID, event.seriesShortName).size() > 0){
                     /* TODO: change icon to clock on */
                 }
+
+                /* TODO: Add on click listener for clock icon */
             }
         }).start();
     }

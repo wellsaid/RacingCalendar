@@ -251,6 +251,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                 .load(series.thumbnailURL)
                 .resize(holder.backgroundThumbnail.getWidth(),
                         (int) context.getResources().getDimension(R.dimen.series_card_height))
+                .centerCrop()
                 .placeholder(R.drawable.placeholder)
                 .into(holder.backgroundThumbnail);
 
