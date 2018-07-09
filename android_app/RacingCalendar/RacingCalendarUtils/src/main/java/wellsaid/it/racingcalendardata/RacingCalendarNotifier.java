@@ -12,6 +12,7 @@ import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -163,6 +164,11 @@ public class RacingCalendarNotifier {
      *     The session to add
      */
     public void addSessionNotification(Context context, RacingCalendar.Session session){
+        /* if this session starts in the past -> stop immediately */
+        if(session.startDateTime.before(Calendar.getInstance().getTime())){
+            return;
+        }
+
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
@@ -196,9 +202,14 @@ public class RacingCalendarNotifier {
 
         /* Insert (or update) this sessions to the database as one to be notified */
         for(RacingCalendar.Session session : sessions){
+            /* if this session starts in the past -> skip it */
+            if(session.startDateTime.before(Calendar.getInstance().getTime())){
+                continue;
+            }
+
             session.notify = true;
+            sessionDao.insertOrUpdate(session);
         }
-        sessionDao.insertOrUpdateAll(sessions);
 
         /* Immediately start notification process if we had 0 session and now we have some*/
         if(prevSessions == 0 && sessionDao.getAllNotify().size() > 0){

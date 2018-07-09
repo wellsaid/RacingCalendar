@@ -17,8 +17,10 @@ import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,21 +78,41 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      * @param series
      *     The series who changed status
      */
-    public void notifyChangeFavoriteStatus(RacingCalendar.Series series){
-        if(series.favorite){
-            /* get all events of this series */
-            List<RacingCalendar.Event> eventList = eventDao.getAllOfSeries(series.shortName);
+    public void notifyChangeFavoriteStatus(final RacingCalendar.Series series){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(series.favorite){
+                    /* get all events of this series */
+                    List<RacingCalendar.Event> tmpEventList = eventDao.getAllOfSeries(series.shortName);
 
-            /* for each event in the list */
-            for(RacingCalendar.Event event : eventList){
-                /* get all sessions of this event */
-                List<RacingCalendar.Session> sessionList =
-                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName);
+                    /* for each event in the list */
+                    for(RacingCalendar.Event event : tmpEventList){
+                        /* get all sessions of this event */
+                        List<RacingCalendar.Session> sessionList =
+                                sessionDao.getAllOfEvent(event.ID, event.seriesShortName);
 
-                /* subscribe to all this event */
-                racingCalendarNotifier.addSessionsNotifications(context, sessionList);
+                        /* subscribe to all this event */
+                        racingCalendarNotifier.addSessionsNotifications(context, sessionList);
+                    }
+                } else {
+                    /* remove for the list all events of this series */
+                    eventsList.removeIf(new Predicate<RacingCalendar.Event>() {
+                        @Override
+                        public boolean test(RacingCalendar.Event event) {
+                            return event.seriesShortName.equals(series.shortName);
+                        }
+                    });
+                }
+
+                new Handler(context.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
             }
-        }
+        }).start();
     }
 
     /**
@@ -107,6 +129,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         this.sessionDao = db.getSessionDao();
 
         this.racingCalendarNotifier = RacingCalendarNotifier.getInstance();
+
+        this.eventsList = new ArrayList<>();
     }
 
     /**
@@ -115,11 +139,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      *     The event list to add
      */
     public void add(List<RacingCalendar.Event> newEventList){
-        if(eventsList == null){
-            eventsList = newEventList;
-        } else {
-            eventsList.addAll(newEventList);
-        }
+        eventsList.addAll(newEventList);
 
         eventsList.sort(new Comparator<RacingCalendar.Event>() {
             @Override
@@ -165,6 +185,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 /* Get the series related to the event */
                 final RacingCalendar.Series series =
                         seriesDao.getByShortName(event.seriesShortName);
+                if(series == null){
+                    return;
+                }
 
                 new Handler(context.getMainLooper()).post(new Runnable() {
                     @Override

@@ -92,9 +92,6 @@ public class RacingCalendarDaos {
         @Insert
         void insertAll(List<Session> sessions);
 
-        @Insert(onConflict = OnConflictStrategy.REPLACE)
-        void insertOrUpdateAll(List<Session> sessions);
-
         @Update
         void update(Session session);
 

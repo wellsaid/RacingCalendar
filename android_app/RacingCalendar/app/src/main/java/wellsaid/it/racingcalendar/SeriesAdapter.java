@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -62,7 +63,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     }
 
     /* The series which are shown */
-    private List<RacingCalendar.Series> seriesList = null;
+    private List<RacingCalendar.Series> seriesList;
 
     /* The context in which the adapter is created */
     private Context context;
@@ -170,6 +171,8 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         this.sessionDao = db.getSessionDao();
 
         this.racingCalendarNotifier = RacingCalendarNotifier.getInstance();
+
+        this.seriesList = new ArrayList<>();
     }
 
     /**
@@ -178,11 +181,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
      *     The series list to add
      */
     public void add(List<RacingCalendar.Series> newSeriesList){
-        if(seriesList == null){
-            seriesList = newSeriesList;
-        } else {
-            seriesList.addAll(newSeriesList);
-        }
+        seriesList.addAll(newSeriesList);
 
         new Handler(context.getMainLooper()).post(new Runnable() {
             @Override
