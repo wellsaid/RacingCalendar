@@ -18,6 +18,7 @@ import org.w3c.dom.Text;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -139,8 +140,18 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      *     The event list to add
      */
     public void add(List<RacingCalendar.Event> newEventList){
+        /* remove all past events from the list */
+        newEventList.removeIf(new Predicate<RacingCalendar.Event>() {
+            @Override
+            public boolean test(RacingCalendar.Event event) {
+                return event.startDate.before(Calendar.getInstance().getTime());
+            }
+        });
+
+        /* add remaining event to the list */
         eventsList.addAll(newEventList);
 
+        /* sort events in the adapter */
         eventsList.sort(new Comparator<RacingCalendar.Event>() {
             @Override
             public int compare(RacingCalendar.Event event, RacingCalendar.Event event1) {
@@ -148,6 +159,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             }
         });
 
+        /* notify the change */
         new Handler(context.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
