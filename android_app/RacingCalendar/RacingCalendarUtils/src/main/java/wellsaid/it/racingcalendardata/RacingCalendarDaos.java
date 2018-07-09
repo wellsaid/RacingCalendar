@@ -70,8 +70,9 @@ public class RacingCalendarDaos {
         List<Session> getAllOfSeries(String seriesShortName);
 
         @Query("SELECT * FROM Session WHERE eventID IN (:eventID) " +
-                "AND seriesShortName IN (:serieShortName)")
-        List<Session> getAllOfEvent(String eventID, String serieShortName);
+                "AND seriesShortName IN (:seriesShortName)" +
+                "AND notify IN (:notify)")
+        List<Session> getAllOfEvent(String eventID, String seriesShortName, int notify);
 
         @Query("SELECT * FROM Session WHERE notify IS 1 ORDER BY startDateTime")
         List<Session> getAllNotify();

@@ -324,4 +324,31 @@ public class RacingCalendarGetter {
             }
         });
     }
+
+    /**
+     * Method to retrieve series from the server
+     * @param seriesShortName
+     *     The short name of the series of desired session (null for all)
+     * @param eventID
+     *     The id of the event (null for all)
+     * @param listener
+     *     The listener to which to return the list of objects
+     */
+    public static void getSessionOfEvent(String eventID, String seriesShortName,
+                                          final Listener<Session> listener) {
+        List<String> selection = null;
+        List<String> selectionValues = null;
+        if(seriesShortName != null){
+            selection = Arrays.asList("eventID", "seriesShortName");
+            selectionValues = Arrays.asList(eventID, seriesShortName);
+        }
+
+        get(SESSIONS, selection, selectionValues, new DataListener() {
+            @Override
+            public void onRacingCalendarDataReceived(List<Object> list) {
+                listener.onRacingCalendarObjectsReceived(
+                        RacingCalendarGetter.<Session>castList(list));
+            }
+        });
+    }
 }

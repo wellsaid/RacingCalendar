@@ -91,7 +91,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                     for(RacingCalendar.Event event : tmpEventList){
                         /* get all sessions of this event */
                         List<RacingCalendar.Session> sessionList =
-                                sessionDao.getAllOfEvent(event.ID, event.seriesShortName);
+                                sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 0);
 
                         /* subscribe to all this event */
                         racingCalendarNotifier.addSessionsNotifications(context, sessionList);
@@ -230,11 +230,63 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 });
 
                 /* Check if the event has some sessions to be notified */
-                if(sessionDao.getAllOfEvent(event.ID, event.seriesShortName).size() > 0){
-                    /* TODO: change icon to clock on */
-                }
+                List<RacingCalendar.Session> notifySessions =
+                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+                final boolean hasSessionToNotify = notifySessions.size() > 0;
 
-                /* TODO: Add on click listener for clock icon */
+                new Handler(context.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                      /* change icon accordingly */
+                      holder.notifyImageButton.setImageResource(
+                              (hasSessionToNotify) ? android.R.drawable.ic_notification_overlay :
+                                      android.R.drawable.ic_notification_clear_all);
+                    }
+                });
+
+                /* set on click listener for notify image button */
+                holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                /* TODO: CONTROLLA CHE FUNZIONI */
+                                List<RacingCalendar.Session> notifySessions1 =
+                                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+                                final boolean hasSessionToNotify1 = notifySessions1.size() > 0;
+
+                                /* if we had session to notify */
+                                if(hasSessionToNotify1){
+                                    /* remove them from the notifier */
+                                    racingCalendarNotifier.removeSessionNotifications(context, notifySessions1);
+                                } else {
+                                    /* rietrieve session to notify */
+                                    RacingCalendarGetter.getSessionOfEvent(
+                                            event.ID,
+                                            event.seriesShortName,
+                                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
+                                        @Override
+                                        public void onRacingCalendarObjectsReceived(List<RacingCalendar.Session> list) {
+                                            /* add them to the notifier */
+                                            racingCalendarNotifier.addSessionsNotifications(context, list);
+                                        }
+                                    });
+                                }
+
+                                new Handler(context.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        /* change icon accordingly */
+                                        holder.notifyImageButton.setImageResource(
+                                                (hasSessionToNotify1)?android.R.drawable.ic_notification_overlay:
+                                                        android.R.drawable.ic_notification_clear_all);
+                                    }
+                                });
+                            }
+                        }).start();
+                    }
+                });
             }
         }).start();
     }
