@@ -74,6 +74,54 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* the notifier object */
     private RacingCalendarNotifier racingCalendarNotifier;
 
+    /* helper method which contains the on click listener for a generic event alarm image button */
+    private void notifyImageButtonOnClickListener(final RacingCalendar.Event event,
+                                                  final ViewHolder holder){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<RacingCalendar.Session> notifySessions1 =
+                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+                final boolean hasSessionToNotify1 = notifySessions1.size() > 0;
+
+                /* if we had session to notify */
+                if(hasSessionToNotify1){
+                    /* remove them from the notifier */
+                    racingCalendarNotifier.removeSessionNotifications(context, notifySessions1);
+
+                    /* remove them from the database */
+                    sessionDao.deleteAll(notifySessions1);
+                } else {
+                    /* rietrieve session to notify */
+                    RacingCalendarGetter.getSessionOfEvent(
+                            event.ID,
+                            event.seriesShortName,
+                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
+                                @Override
+                                public void onRacingCalendarObjectsReceived(
+                                        List<RacingCalendar.Session> list) {
+                                    /* add them to the notifier */
+                                    racingCalendarNotifier.addSessionsNotifications(context, list);
+
+                                    /* add them to the database */
+                                    sessionDao.insertAll(notifySessions1);
+                                }
+                            });
+                }
+
+                new Handler(context.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        /* change icon accordingly */
+                        holder.notifyImageButton.setImageResource(
+                                (hasSessionToNotify1)?android.R.drawable.ic_notification_clear_all:
+                                        android.R.drawable.ic_notification_overlay);
+                    }
+                });
+            }
+        }).start();
+    }
+
     /**
      * Called when you need to notify to this fragment that a series changed favorite status
      * @param series
@@ -230,7 +278,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 });
 
                 /* Check if the event has some sessions to be notified */
-                List<RacingCalendar.Session> notifySessions =
+                final List<RacingCalendar.Session> notifySessions =
                         sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
                 final boolean hasSessionToNotify = notifySessions.size() > 0;
 
@@ -248,43 +296,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                /* TODO: CONTROLLA CHE FUNZIONI */
-                                List<RacingCalendar.Session> notifySessions1 =
-                                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-                                final boolean hasSessionToNotify1 = notifySessions1.size() > 0;
-
-                                /* if we had session to notify */
-                                if(hasSessionToNotify1){
-                                    /* remove them from the notifier */
-                                    racingCalendarNotifier.removeSessionNotifications(context, notifySessions1);
-                                } else {
-                                    /* rietrieve session to notify */
-                                    RacingCalendarGetter.getSessionOfEvent(
-                                            event.ID,
-                                            event.seriesShortName,
-                                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
-                                        @Override
-                                        public void onRacingCalendarObjectsReceived(List<RacingCalendar.Session> list) {
-                                            /* add them to the notifier */
-                                            racingCalendarNotifier.addSessionsNotifications(context, list);
-                                        }
-                                    });
-                                }
-
-                                new Handler(context.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        /* change icon accordingly */
-                                        holder.notifyImageButton.setImageResource(
-                                                (hasSessionToNotify1)?android.R.drawable.ic_notification_overlay:
-                                                        android.R.drawable.ic_notification_clear_all);
-                                    }
-                                });
-                            }
-                        }).start();
+                        notifyImageButtonOnClickListener(event, holder);
                     }
                 });
             }

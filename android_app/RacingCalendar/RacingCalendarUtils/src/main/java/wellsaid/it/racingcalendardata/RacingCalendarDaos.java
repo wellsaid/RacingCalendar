@@ -99,6 +99,9 @@ public class RacingCalendarDaos {
         @Delete
         void delete(Session session);
 
+        @Delete
+        void deleteAll(List<Session> sessions);
+
         @Query("DELETE FROM Session WHERE seriesShortName IN (:seriesShortName)")
         void deleteAllOfSeries(String seriesShortName);
     }
