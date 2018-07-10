@@ -45,8 +45,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         @BindView(R.id.event_name_text_view)
         TextView eventNameTextView;
 
-        @BindView(R.id.series_name_text_view)
-        TextView seriesNameTextView;
+        @BindView(R.id.circuit_name_text_view)
+        TextView circuitNameTextView;
 
         @BindView(R.id.event_times_text_view)
         TextView eventTimesTextView;
@@ -263,7 +263,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
                         holder.eventNameTextView.setText(event.eventName);
 
-                        holder.seriesNameTextView.setText(series.completeName);
+                        holder.circuitNameTextView.setText(event.circuitName);
 
                         DateFormat dateFormat = SimpleDateFormat.getDateInstance();
                         StringBuilder datesStringBuilder = new StringBuilder()
