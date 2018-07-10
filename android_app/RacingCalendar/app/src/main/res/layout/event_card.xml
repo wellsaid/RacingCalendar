@@ -53,7 +53,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_notification_clear_all"
+            android:src="@mipmap/clock_off"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"

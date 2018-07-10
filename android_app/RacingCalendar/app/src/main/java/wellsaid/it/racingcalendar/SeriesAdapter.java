@@ -273,8 +273,8 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                     @Override
                     public void run() {
                         holder.favoriteImageButton.setImageResource(
-                                (series.favorite)?android.R.drawable.btn_star_big_on:
-                                                  android.R.drawable.btn_star_big_off);
+                                (series.favorite)?R.mipmap.heart_on:
+                                                  R.mipmap.heart_off);
                     }
                 });
             }
@@ -297,8 +297,8 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                             public void run() {
                                 /* Toggle icon image */
                                 holder.favoriteImageButton.setImageResource(
-                                        (series.favorite) ? android.R.drawable.btn_star_big_on :
-                                                android.R.drawable.btn_star_big_off);
+                                        (series.favorite) ? R.mipmap.heart_on :
+                                                R.mipmap.heart_off);
                             }
                         });
                     }

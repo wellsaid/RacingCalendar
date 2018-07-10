@@ -114,8 +114,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                     public void run() {
                         /* change icon accordingly */
                         holder.notifyImageButton.setImageResource(
-                                (hasSessionToNotify1)?android.R.drawable.ic_notification_clear_all:
-                                        android.R.drawable.ic_notification_overlay);
+                                (hasSessionToNotify1)?R.mipmap.clock_off:
+                                        R.mipmap.clock_on);
                     }
                 });
             }
@@ -287,8 +287,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                     public void run() {
                       /* change icon accordingly */
                       holder.notifyImageButton.setImageResource(
-                              (hasSessionToNotify) ? android.R.drawable.ic_notification_overlay :
-                                      android.R.drawable.ic_notification_clear_all);
+                              (hasSessionToNotify) ? R.mipmap.clock_on : R.mipmap.clock_off);
                     }
                 });
 
