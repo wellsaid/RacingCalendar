@@ -31,6 +31,8 @@ dependencies {
     implementation 'com.android.support:support-v4:28.0.0-alpha3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'org.parceler:parceler-api:1.1.11'
+    annotationProcessor 'org.parceler:parceler:1.1.11'
 
     /* WARNING: Without this gradle fails to sync with:
          * Android dependency 'android.arch.core:runtime' has different version for the compile (1.1.0)

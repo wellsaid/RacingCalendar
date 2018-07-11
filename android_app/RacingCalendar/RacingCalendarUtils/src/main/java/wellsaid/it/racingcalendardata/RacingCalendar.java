@@ -1,10 +1,11 @@
 package wellsaid.it.racingcalendardata;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
-import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+
+import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
 
 import java.util.Date;
 
@@ -25,6 +26,7 @@ public class RacingCalendar {
     /**
      * Object containing information about a series
      */
+    @Parcel
     @Entity
     public static class Series {
 
@@ -48,6 +50,7 @@ public class RacingCalendar {
          * @param logoURL
          * @param thumbnailURL
          */
+        @ParcelConstructor
         public Series(String shortName,
                       String completeName,
                       String seriesType,

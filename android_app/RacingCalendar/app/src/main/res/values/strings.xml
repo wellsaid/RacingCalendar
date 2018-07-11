@@ -12,6 +12,9 @@
     <string name="favorite_tab_name">Favorites</string>
     <string name="all_series_tab_name">All Series</string>
 
+    <!-- labels -->
     <string name="times">Times</string>
     <string name="dates">Dates</string>
+    <string name="description">Description</string>
+    <string name="calendar">Calendar</string>
 </resources>

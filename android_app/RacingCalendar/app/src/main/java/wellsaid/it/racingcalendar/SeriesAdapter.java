@@ -1,6 +1,7 @@
 package wellsaid.it.racingcalendar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +59,13 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         @BindView(R.id.favorite_button)
         ImageButton favoriteImageButton;
 
+        View view;
+
         public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+
+            this.view = view;
         }
     }
 
@@ -244,6 +251,17 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         /* Take the series we have to show */
         final RacingCalendar.Series series = seriesList.get(position);
+
+        /* Define on click listener for the card to open SeriesDetailActivity */
+        holder.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /* launch the series detail activity */
+                Intent intent = new Intent(context, SeriesDetailActivity.class);
+                intent.putExtra(SeriesDetailActivity.SERIES_BUNDLE_KEY, Parcels.wrap(series));
+                context.startActivity(intent);
+            }
+        });
 
         /* Load thumbnail image */
         Picasso.with(context)

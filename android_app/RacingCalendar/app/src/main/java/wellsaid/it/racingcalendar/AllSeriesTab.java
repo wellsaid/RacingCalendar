@@ -143,8 +143,6 @@ public class AllSeriesTab extends Fragment
         /* Inflate the layout for this fragment */
         View view = inflater.inflate(R.layout.fragment_all_series_tab, container, false);
 
-        /* TODO: Define on click listener for the card to open SeriesDetailActivity */
-
         /* Bind the views of this fragment */
         ButterKnife.bind(this, view);
 
