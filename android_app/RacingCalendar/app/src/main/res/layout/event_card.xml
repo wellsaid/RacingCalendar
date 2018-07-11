@@ -1,42 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/event_card_height"
     android:elevation="4dp"
-    android:layout_margin="8dp" >
-
-    <ImageView
-        android:id="@+id/series_logo_image_view"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/event_card_height"
-        android:padding="4dp" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/photo_protection" />
+    android:padding="4dp" >
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        android:elevation="8dp"
+        android:background="@android:color/white">
+
+        <ImageView
+            android:id="@+id/series_logo_image_view"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:padding="4dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:id="@+id/event_name_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/AppTheme.EventSeriesNameText"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_toEndOf="@id/series_logo_image_view" />
 
         <TextView
             android:id="@+id/circuit_name_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/AppTheme.EventSeriesTypeText"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
+            android:layout_alignLeft="@+id/event_name_text_view"
             android:layout_below="@id/event_name_text_view" />
 
         <TextView
@@ -44,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/AppTheme.EventSeriesTimes"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true" />
 
@@ -55,10 +51,9 @@
             android:background="@android:color/transparent"
             android:src="@mipmap/clock_off"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:padding="4dp" />
 
     </RelativeLayout>
 
-</FrameLayout>
+</RelativeLayout>
