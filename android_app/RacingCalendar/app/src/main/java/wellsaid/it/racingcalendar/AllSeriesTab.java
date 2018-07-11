@@ -183,10 +183,10 @@ public class AllSeriesTab extends Fragment
                     errorTextView.setVisibility(View.VISIBLE);
                 } else {
                     recyclerView.setVisibility(View.VISIBLE);
-                }
 
-                /* pass the list to the adapter */
-                seriesAdapter.add(list);
+                    /* pass the list to the adapter */
+                    seriesAdapter.add(list);
+                }
             }
         });
     }
