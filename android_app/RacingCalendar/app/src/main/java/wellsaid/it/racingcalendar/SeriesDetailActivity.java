@@ -3,6 +3,8 @@ package wellsaid.it.racingcalendar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
@@ -49,9 +51,13 @@ public class SeriesDetailActivity extends AppCompatActivity {
         /* bind the views */
         ButterKnife.bind(this);
 
+        /* initialize the action bar */
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         /* retrieve the series to show in the bundle */
         Bundle inputBundle = getIntent().getExtras();
-        if(!inputBundle.containsKey(SERIES_BUNDLE_KEY)) {
+        if(inputBundle != null && !inputBundle.containsKey(SERIES_BUNDLE_KEY)) {
             throw new IllegalArgumentException();
         }
 
@@ -69,5 +75,25 @@ public class SeriesDetailActivity extends AppCompatActivity {
         descriptionTextView.setText(series.description);
 
         /* TODO: set adapter and layout manager for the recycler view */
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        /* Inflate the menu (adds items to the action bar) */
+        getMenuInflater().inflate(R.menu.menu_series_detail, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        /* get the option selected */
+        int id = item.getItemId();
+        switch (id){
+            case R.id.action_favorite:
+                /* TODO: Toggle series favorite status */
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
