@@ -205,8 +205,7 @@ public class RacingCalendarNotifier {
         /* Insert (or update) this sessions to the database as one to be notified */
         for(RacingCalendar.Session session : sessions){
             /* if this session ends in the past -> skip it */
-            if(session.endDateTime == null ||
-                    session.endDateTime.before(Calendar.getInstance().getTime())){
+            if(session.endDateTime.before(Calendar.getInstance().getTime())){
                 continue;
             }
 
