@@ -1,5 +1,6 @@
 package wellsaid.it.racingcalendar;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -53,7 +54,12 @@ public class SeriesDetailActivity extends AppCompatActivity {
 
         /* initialize the action bar */
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        /* set up navigation button in the action bar */
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         /* retrieve the series to show in the bundle */
         Bundle inputBundle = getIntent().getExtras();
@@ -64,7 +70,9 @@ public class SeriesDetailActivity extends AppCompatActivity {
         series = Parcels.unwrap(inputBundle.getParcelable(SERIES_BUNDLE_KEY));
 
         /* fill the layout with content */
-        toolbar.setTitle(series.completeName);
+        if(actionBar != null){
+            actionBar.setTitle(series.completeName);
+        }
 
         Picasso.with(this)
                .load(series.thumbnailURL)
