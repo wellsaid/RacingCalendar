@@ -1,7 +1,6 @@
 package wellsaid.it.racingcalendardata;
 
 import android.content.Context;
-import android.os.Handler;
 
 import java.util.List;
 

@@ -1,8 +1,11 @@
 package wellsaid.it.racingcalendar;
 
+import android.content.Context;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +20,7 @@ import org.parceler.Parcels;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
+import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class SeriesDetailActivity extends AppCompatActivity {
 
@@ -89,6 +93,11 @@ public class SeriesDetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         /* Inflate the menu (adds items to the action bar) */
         getMenuInflater().inflate(R.menu.menu_series_detail, menu);
+
+        /* Initialize favorite action color correctly */
+        MenuItem favoriteAction = ((MenuBuilder) menu).getActionItems().get(0);
+        favoriteAction.setIcon((series.favorite)?R.mipmap.heart_on:R.mipmap.heart_off);
+
         return true;
     }
 
@@ -98,10 +107,29 @@ public class SeriesDetailActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_favorite:
-                /* TODO: Toggle series favorite status */
+                /* toggle series favorite status */
+                series.favorite = !series.favorite;
+
+                /* Perform operations on favorite status change */
+                final Context context = this;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        RacingCalendarUtils.seriesFavoriteStatusChanged(context, series);
+                    }
+                }).start();
+
+                item.setIcon((series.favorite)?R.mipmap.heart_on:R.mipmap.heart_off);
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        NavUtils.navigateUpFromSameTask(this);
     }
 }
