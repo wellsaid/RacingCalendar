@@ -92,7 +92,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                     /* remove them from the database */
                     sessionDao.deleteAll(notifySessions1);
                 } else {
-                    /* rietrieve session to notify */
+                    /* retrieve session to notify */
                     RacingCalendarGetter.getSessionOfEvent(
                             event.ID,
                             event.seriesShortName,
@@ -247,7 +247,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         newEventList.removeIf(new Predicate<RacingCalendar.Event>() {
             @Override
             public boolean test(RacingCalendar.Event event) {
-                return event.startDate.before(Calendar.getInstance().getTime());
+                return event.endDate.before(Calendar.getInstance().getTime());
             }
         });
 

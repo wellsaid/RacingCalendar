@@ -164,8 +164,8 @@ public class RacingCalendarNotifier {
      *     The session to add
      */
     public void addSessionNotification(Context context, RacingCalendar.Session session){
-        /* if this session starts in the past -> stop immediately */
-        if(session.startDateTime.before(Calendar.getInstance().getTime())){
+        /* if this session ends in the past -> stop immediately */
+        if(session.endDateTime.before(Calendar.getInstance().getTime())){
             return;
         }
 
@@ -202,8 +202,9 @@ public class RacingCalendarNotifier {
 
         /* Insert (or update) this sessions to the database as one to be notified */
         for(RacingCalendar.Session session : sessions){
-            /* if this session starts in the past -> skip it */
-            if(session.startDateTime.before(Calendar.getInstance().getTime())){
+            /* if this session ends in the past -> skip it */
+            if(session.endDateTime != null &&
+                    session.endDateTime.before(Calendar.getInstance().getTime())){
                 continue;
             }
 
