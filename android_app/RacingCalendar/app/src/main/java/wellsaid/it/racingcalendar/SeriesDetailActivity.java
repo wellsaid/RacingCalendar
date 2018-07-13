@@ -1,11 +1,13 @@
 package wellsaid.it.racingcalendar;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,15 +19,22 @@ import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
+import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
+import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class SeriesDetailActivity extends AppCompatActivity {
 
     /* the series to show */
     private RacingCalendar.Series series;
+
+    /* The adapter for the recycler view */
+    private EventAdapter eventAdapter;
 
     /* the toolbar of the activity */
     @BindView(R.id.toolbar)
@@ -56,6 +65,11 @@ public class SeriesDetailActivity extends AppCompatActivity {
         /* bind the views */
         ButterKnife.bind(this);
 
+        /* Associate the adapter and the layout manager to the recycler view */
+        eventAdapter = new EventAdapter(this);
+        calendarRecyclerView.setAdapter(eventAdapter);
+        calendarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         /* initialize the action bar */
         setSupportActionBar(toolbar);
 
@@ -72,6 +86,45 @@ public class SeriesDetailActivity extends AppCompatActivity {
         }
 
         series = Parcels.unwrap(inputBundle.getParcelable(SERIES_BUNDLE_KEY));
+
+        /* Start retrieval of the events */
+        final Context context = this;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                /* from local database if series is favorite */
+                if(series.favorite) {
+                    final List<RacingCalendar.Event> list = RacingCalendarDatabase
+                            .getDatabaseFromContext(context).getEventDao().getAll();
+
+                    /* When the list has been retrieved */
+                    new Handler(context.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            /* pass the list to the adapter */
+                            eventAdapter.add(list);
+                        }
+                    });
+                    /* from the server otherwise */
+                } else {
+                    RacingCalendarGetter.getEventsOfSeries(series.shortName,
+                            new RacingCalendarGetter.Listener<RacingCalendar.Event>() {
+                                @Override
+                                public void onRacingCalendarObjectsReceived(
+                                        final List<RacingCalendar.Event> list) {
+                                    /* When the list has been retrieved */
+                                    new Handler(context.getMainLooper()).post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            /* pass the list to the adapter */
+                                            eventAdapter.add(list);
+                                        }
+                                    });
+                                }
+                            });
+                }
+            }
+        }).start();
 
         /* fill the layout with content */
         if(actionBar != null){

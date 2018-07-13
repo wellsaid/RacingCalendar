@@ -122,6 +122,61 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }).start();
     }
 
+    /* helper method to fill the element in onBindViewHolder */
+    private void fillElement(final ViewHolder holder,
+                             final RacingCalendar.Event event,
+                             final RacingCalendar.Series series){
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                /* Fill views of the element at position */
+                Picasso.with(context)
+                        .load(series.logoURL)
+                        .resize(holder.seriesLogoIcon.getWidth(),
+                                (int) context.getResources().getDimension(R.dimen.event_card_height))
+                        .centerInside()
+                        .placeholder(R.drawable.placeholder)
+                        .into(holder.seriesLogoIcon);
+
+                holder.eventNameTextView.setText(event.eventName);
+
+                holder.circuitNameTextView.setText(event.circuitName);
+
+                DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+                StringBuilder datesStringBuilder = new StringBuilder()
+                        .append(context.getString(R.string.dates))
+                        .append(": ")
+                        .append(dateFormat.format(event.startDate))
+                        .append(" - ")
+                        .append(dateFormat.format(event.endDate));
+
+                holder.eventTimesTextView.setText(datesStringBuilder.toString());
+            }
+        });
+
+        /* Check if the event has some sessions to be notified */
+        final List<RacingCalendar.Session> notifySessions =
+                sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+        final boolean hasSessionToNotify = notifySessions.size() > 0;
+
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                /* change icon accordingly */
+                holder.notifyImageButton.setImageResource(
+                        (hasSessionToNotify) ? R.mipmap.clock_on : R.mipmap.clock_off);
+            }
+        });
+
+        /* set on click listener for notify image button */
+        holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                notifyImageButtonOnClickListener(event, holder);
+            }
+        });
+    }
+
     /**
      * Called when you need to notify to this fragment that a series changed favorite status
      * @param series
@@ -242,62 +297,23 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                /* Get the series related to the event */
-                final RacingCalendar.Series series =
+                /* Get the series related to the event
+                 * from local database if series is favorite */
+                RacingCalendar.Series series =
                         seriesDao.getByShortName(event.seriesShortName);
                 if(series == null){
-                    return;
+                    /* from the server if series is not favorite */
+                    RacingCalendarGetter.getSeries(event.seriesShortName,
+                            new RacingCalendarGetter.Listener<RacingCalendar.Series>() {
+                        @Override
+                        public void onRacingCalendarObjectsReceived(
+                                List<RacingCalendar.Series> list) {
+                            fillElement(holder, event, list.get(0));
+                        }
+                    });
+                } else {
+                    fillElement(holder, event, series);
                 }
-
-                new Handler(context.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        /* Fill views of the element at position */
-                        Picasso.with(context)
-                                .load(series.logoURL)
-                                .resize(holder.seriesLogoIcon.getWidth(),
-                                        (int) context.getResources().getDimension(R.dimen.event_card_height))
-                                .centerInside()
-                                .placeholder(R.drawable.placeholder)
-                                .into(holder.seriesLogoIcon);
-
-                        holder.eventNameTextView.setText(event.eventName);
-
-                        holder.circuitNameTextView.setText(event.circuitName);
-
-                        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
-                        StringBuilder datesStringBuilder = new StringBuilder()
-                                .append(context.getString(R.string.dates))
-                                .append(": ")
-                                .append(dateFormat.format(event.startDate))
-                                .append(" - ")
-                                .append(dateFormat.format(event.endDate));
-
-                        holder.eventTimesTextView.setText(datesStringBuilder.toString());
-                    }
-                });
-
-                /* Check if the event has some sessions to be notified */
-                final List<RacingCalendar.Session> notifySessions =
-                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-                final boolean hasSessionToNotify = notifySessions.size() > 0;
-
-                new Handler(context.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                      /* change icon accordingly */
-                      holder.notifyImageButton.setImageResource(
-                              (hasSessionToNotify) ? R.mipmap.clock_on : R.mipmap.clock_off);
-                    }
-                });
-
-                /* set on click listener for notify image button */
-                holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        notifyImageButtonOnClickListener(event, holder);
-                    }
-                });
             }
         }).start();
     }
