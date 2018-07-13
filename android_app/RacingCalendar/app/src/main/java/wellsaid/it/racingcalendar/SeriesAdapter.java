@@ -1,6 +1,7 @@
 package wellsaid.it.racingcalendar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,7 @@ import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
+import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 /**
  * The Adapter to show series "cards"
@@ -56,9 +60,13 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         @BindView(R.id.favorite_button)
         ImageButton favoriteImageButton;
 
+        View view;
+
         public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+
+            this.view = view;
         }
     }
 
@@ -85,59 +93,17 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     /* helper method to perform operations when a series becomes favorite or un-favorite */
     private void seriesFavoriteStatusChanged(final RacingCalendar.Series series,
                                             final int position){
-        /* if the series just becomed favorite */
-        if(series.favorite){
-            /* add it to the local database */
-            seriesDao.insertOrUpdate(series);
+        /* Perform operations on favorite status change */
+        RacingCalendarUtils.seriesFavoriteStatusChanged(context, series);
 
-            /* download and add all its events in the local database */
-            RacingCalendarGetter.getEventsOfSeries(series.shortName,
-                    new RacingCalendarGetter.Listener<RacingCalendar.Event>() {
-                @Override
-                public void onRacingCalendarObjectsReceived(List<RacingCalendar.Event> list) {
-                    /* when ready load them into the database */
-                    eventDao.insertAll(list);
-
-                    /* download and add all its sessions in the local database */
-                    RacingCalendarGetter.getSessionOfSeries(series.shortName,
-                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
-                                @Override
-                                public void onRacingCalendarObjectsReceived(
-                                        List<RacingCalendar.Session> list) {
-                                    /* when ready load the into the database */
-                                    sessionDao.insertAll(list);
-
-                                    /* subscribe to all */
-                                    racingCalendarNotifier.addSessionsNotifications(context, list);
-                                    /* TODO: Subsribe based on user settings (all, just race ...) */
-                                }
-                            });
-                }
-            });
-        /* if the series just becomed un-favorite */
-        } else {
-            /* un-subscribe from all sessions */
-            racingCalendarNotifier.removeSessionNotifications(context,
-                    sessionDao.getAllOfSeries(series.shortName));
-
-            /* remove all sessions of that series from local database */
-            sessionDao.deleteAllOfSeries(series.shortName);
-
-            /* remove all events of that series from local database */
-            eventDao.deleteAllOfSeries(series.shortName);
-
-            /* remove it from the local database */
-            seriesDao.delete(series);
-
+        /* if the series just becomed un-favorite and caller wants just favorites in the adapter */
+        if(!series.favorite && onlyFavorites){
             new Handler(context.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    /* if caller wants just favorites in the adapter */
-                    if (onlyFavorites) {
                         /* Remove the element */
                         seriesList.remove(position);
                         notifyItemRemoved(position);
-                    }
                 }
             });
         }
@@ -244,6 +210,17 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         /* Take the series we have to show */
         final RacingCalendar.Series series = seriesList.get(position);
+
+        /* Define on click listener for the card to open SeriesDetailActivity */
+        holder.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /* launch the series detail activity */
+                Intent intent = new Intent(context, SeriesDetailActivity.class);
+                intent.putExtra(SeriesDetailActivity.SERIES_BUNDLE_KEY, Parcels.wrap(series));
+                context.startActivity(intent);
+            }
+        });
 
         /* Load thumbnail image */
         Picasso.with(context)

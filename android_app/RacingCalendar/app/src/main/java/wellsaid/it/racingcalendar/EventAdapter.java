@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import butterknife.BindView;
@@ -66,6 +67,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* The context in which the adapter is created */
     private Context context;
 
+    /* true if the create want just favorite events to stay in the adapter */
+    private boolean onlyFavorites;
+
     /* the DAO objects used to interact with the database */
     private RacingCalendarDaos.EventDao eventDao;
     private RacingCalendarDaos.SeriesDao seriesDao;
@@ -92,7 +96,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                     /* remove them from the database */
                     sessionDao.deleteAll(notifySessions1);
                 } else {
-                    /* rietrieve session to notify */
+                    /* retrieve session to notify */
                     RacingCalendarGetter.getSessionOfEvent(
                             event.ID,
                             event.seriesShortName,
@@ -122,55 +126,119 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }).start();
     }
 
-    /**
-     * Called when you need to notify to this fragment that a series changed favorite status
-     * @param series
-     *     The series who changed status
-     */
-    public void notifyChangeFavoriteStatus(final RacingCalendar.Series series){
-        new Thread(new Runnable() {
+    /* helper method to fill the element in onBindViewHolder */
+    private void fillElement(final ViewHolder holder,
+                             final RacingCalendar.Event event,
+                             final RacingCalendar.Series series){
+        new Handler(context.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(series.favorite){
-                    /* get all events of this series */
-                    List<RacingCalendar.Event> tmpEventList = eventDao.getAllOfSeries(series.shortName);
+                /* Fill views of the element at position */
+                Picasso.with(context)
+                        .load(series.logoURL)
+                        .resize(holder.seriesLogoIcon.getWidth(),
+                                (int) context.getResources().getDimension(R.dimen.event_card_height))
+                        .centerInside()
+                        .placeholder(R.drawable.placeholder)
+                        .into(holder.seriesLogoIcon);
 
-                    /* for each event in the list */
-                    for(RacingCalendar.Event event : tmpEventList){
-                        /* get all sessions of this event */
-                        List<RacingCalendar.Session> sessionList =
-                                sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 0);
+                holder.eventNameTextView.setText(event.eventName);
 
-                        /* subscribe to all this event */
-                        racingCalendarNotifier.addSessionsNotifications(context, sessionList);
-                    }
-                } else {
-                    /* remove for the list all events of this series */
+                holder.circuitNameTextView.setText(event.circuitName);
+
+                DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+                StringBuilder datesStringBuilder = new StringBuilder()
+                        .append(context.getString(R.string.dates))
+                        .append(": ")
+                        .append(dateFormat.format(event.startDate))
+                        .append(" - ")
+                        .append(dateFormat.format(event.endDate));
+
+                holder.eventTimesTextView.setText(datesStringBuilder.toString());
+            }
+        });
+
+        /* Check if the event has some sessions to be notified */
+        final List<RacingCalendar.Session> notifySessions =
+                sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+        final boolean hasSessionToNotify = notifySessions.size() > 0;
+
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                /* change icon accordingly */
+                holder.notifyImageButton.setImageResource(
+                        (hasSessionToNotify) ? R.mipmap.clock_on : R.mipmap.clock_off);
+            }
+        });
+
+        /* set on click listener for notify image button */
+        holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                notifyImageButtonOnClickListener(event, holder);
+            }
+        });
+    }
+
+    /**
+     * Called when you need to notify to this fragment that a series changed favorite status
+     */
+    public void notifyChangeFavoriteStatus(){
+        /* if the caller wants only favorites */
+        if(onlyFavorites){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    /* get favorite series */
+                    final List<RacingCalendar.Series> favSeries = seriesDao.getAllFavorites();
+
+                    /* eliminate all events from non favorite series */
                     eventsList.removeIf(new Predicate<RacingCalendar.Event>() {
                         @Override
                         public boolean test(RacingCalendar.Event event) {
-                            return event.seriesShortName.equals(series.shortName);
+                            RacingCalendar.Series tmpSeries =
+                                    new RacingCalendar.Series(event.seriesShortName,
+                                            null,
+                                            null,
+                                            null,
+                                            null,
+                                            null);
+
+                            return !favSeries.contains(tmpSeries);
+                        }
+                    });
+
+                    /* notify the change */
+                    new Handler(context.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyDataSetChanged();
                         }
                     });
                 }
-
-                new Handler(context.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyDataSetChanged();
-                    }
-                });
-            }
-        }).start();
+            }).start();
+        } else {
+            /* notify the change */
+            new Handler(context.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     /**
      * Constructor
      * @param context
      *     The context in which the adapter is created
+     * @param onlyFavorites
+     *     True if you want just favorite series to stay in the adapter
      */
-    public EventAdapter(Context context){
+    public EventAdapter(Context context, boolean onlyFavorites){
         this.context = context;
+        this.onlyFavorites = onlyFavorites;
 
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
         this.eventDao = db.getEventDao();
@@ -192,7 +260,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         newEventList.removeIf(new Predicate<RacingCalendar.Event>() {
             @Override
             public boolean test(RacingCalendar.Event event) {
-                return event.startDate.before(Calendar.getInstance().getTime());
+                return event.endDate.before(Calendar.getInstance().getTime());
             }
         });
 
@@ -242,62 +310,23 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                /* Get the series related to the event */
-                final RacingCalendar.Series series =
+                /* Get the series related to the event
+                 * from local database if series is favorite */
+                RacingCalendar.Series series =
                         seriesDao.getByShortName(event.seriesShortName);
                 if(series == null){
-                    return;
+                    /* from the server if series is not favorite */
+                    RacingCalendarGetter.getSeries(event.seriesShortName,
+                            new RacingCalendarGetter.Listener<RacingCalendar.Series>() {
+                        @Override
+                        public void onRacingCalendarObjectsReceived(
+                                List<RacingCalendar.Series> list) {
+                            fillElement(holder, event, list.get(0));
+                        }
+                    });
+                } else {
+                    fillElement(holder, event, series);
                 }
-
-                new Handler(context.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        /* Fill views of the element at position */
-                        Picasso.with(context)
-                                .load(series.logoURL)
-                                .resize(holder.seriesLogoIcon.getWidth(),
-                                        (int) context.getResources().getDimension(R.dimen.event_card_height))
-                                .centerInside()
-                                .placeholder(R.drawable.placeholder)
-                                .into(holder.seriesLogoIcon);
-
-                        holder.eventNameTextView.setText(event.eventName);
-
-                        holder.circuitNameTextView.setText(event.circuitName);
-
-                        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
-                        StringBuilder datesStringBuilder = new StringBuilder()
-                                .append(context.getString(R.string.dates))
-                                .append(": ")
-                                .append(dateFormat.format(event.startDate))
-                                .append(" - ")
-                                .append(dateFormat.format(event.endDate));
-
-                        holder.eventTimesTextView.setText(datesStringBuilder.toString());
-                    }
-                });
-
-                /* Check if the event has some sessions to be notified */
-                final List<RacingCalendar.Session> notifySessions =
-                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-                final boolean hasSessionToNotify = notifySessions.size() > 0;
-
-                new Handler(context.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                      /* change icon accordingly */
-                      holder.notifyImageButton.setImageResource(
-                              (hasSessionToNotify) ? R.mipmap.clock_on : R.mipmap.clock_off);
-                    }
-                });
-
-                /* set on click listener for notify image button */
-                holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        notifyImageButtonOnClickListener(event, holder);
-                    }
-                });
             }
         }).start();
     }

@@ -142,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         /* Inflate the menu (adds items to the action bar) */

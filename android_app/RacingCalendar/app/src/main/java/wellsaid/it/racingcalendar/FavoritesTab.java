@@ -1,7 +1,9 @@
 package wellsaid.it.racingcalendar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcel;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -100,8 +104,6 @@ public class FavoritesTab extends Fragment {
                              Bundle savedInstanceState) {
         /* Inflate the layout for this fragment */
         View view = inflater.inflate(R.layout.fragment_favorites_tab, container, false);
-
-        /* TODO: Define on click listener for the card to open SeriesDetailActivity */
 
         /* Bind the views of this fragment */
         ButterKnife.bind(this, view);

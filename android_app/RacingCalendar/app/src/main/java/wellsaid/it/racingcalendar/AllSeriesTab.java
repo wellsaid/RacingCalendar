@@ -78,6 +78,9 @@ public class AllSeriesTab extends Fragment
     /* the listener which will receive updates to favorites change status */
     private AllSeriesTab.FavoritesChangeListener fcListener;
 
+    /* broadcast receiver to receive connectivity actions */
+    private NetworkChangeReceiver networkChangeReceiver;
+
     /* required empty constructor */
     public AllSeriesTab() {}
 
@@ -130,11 +133,25 @@ public class AllSeriesTab extends Fragment
         /* get the starting network status */
         hasBeenConnected = isConnected();
 
-        /* register the broadcast receiver to receive connectivity actions
-         * (done after the first response to avoid loading two times at start)
-         */
-        getContext().registerReceiver(new NetworkChangeReceiver(),
+        /* create the broadcast receiver to receive connectivity actions */
+        networkChangeReceiver = new NetworkChangeReceiver();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        /* register the broadcast receiver to receive connectivity actions */
+        getContext().registerReceiver(networkChangeReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        /* unregister the broadcast receiver to receive connectivity actions */
+        getContext().unregisterReceiver(networkChangeReceiver);
     }
 
     @Override
@@ -142,8 +159,6 @@ public class AllSeriesTab extends Fragment
                              Bundle savedInstanceState) {
         /* Inflate the layout for this fragment */
         View view = inflater.inflate(R.layout.fragment_all_series_tab, container, false);
-
-        /* TODO: Define on click listener for the card to open SeriesDetailActivity */
 
         /* Bind the views of this fragment */
         ButterKnife.bind(this, view);
