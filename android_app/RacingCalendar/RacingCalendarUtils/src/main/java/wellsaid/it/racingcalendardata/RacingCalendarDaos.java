@@ -49,10 +49,16 @@ public class RacingCalendarDaos {
         Event getByIDAndSeriesShortName(String ID, String seriesShortName);
 
         @Insert
-        void insert(Event seriesType);
+        void insert(Event event);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insertOrUpdate(Event event);
 
         @Insert
-        void insertAll(List<Event> seriesType);
+        void insertAll(List<Event> eventList);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insertOrUpdateAll(List<Event> eventList);
 
         @Delete
         void delete(Event seriesType);
@@ -92,6 +98,9 @@ public class RacingCalendarDaos {
 
         @Insert
         void insertAll(List<Session> sessions);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insertOrUpdateAll(List<Session> session);
 
         @Update
         void update(Session session);

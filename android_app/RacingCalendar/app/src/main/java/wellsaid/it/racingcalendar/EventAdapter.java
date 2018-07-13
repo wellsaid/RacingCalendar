@@ -67,9 +67,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* The context in which the adapter is created */
     private Context context;
 
-    /* true if the create want just favorite events to stay in the adapter */
-    private boolean onlyFavorites;
-
     /* the DAO objects used to interact with the database */
     private RacingCalendarDaos.EventDao eventDao;
     private RacingCalendarDaos.SeriesDao seriesDao;
@@ -95,7 +92,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
                     /* remove them from the database */
                     sessionDao.deleteAll(notifySessions1);
+
+                    /* remove event from the local database */
+                    eventDao.delete(event);
                 } else {
+                    /* add event to the local database */
+                    eventDao.insert(event);
+
                     /* retrieve session to notify */
                     RacingCalendarGetter.getSessionOfEvent(
                             event.ID,
@@ -185,60 +188,22 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      * Called when you need to notify to this fragment that a series changed favorite status
      */
     public void notifyChangeFavoriteStatus(){
-        /* if the caller wants only favorites */
-        if(onlyFavorites){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    /* get favorite series */
-                    final List<RacingCalendar.Series> favSeries = seriesDao.getAllFavorites();
-
-                    /* eliminate all events from non favorite series */
-                    eventsList.removeIf(new Predicate<RacingCalendar.Event>() {
-                        @Override
-                        public boolean test(RacingCalendar.Event event) {
-                            RacingCalendar.Series tmpSeries =
-                                    new RacingCalendar.Series(event.seriesShortName,
-                                            null,
-                                            null,
-                                            null,
-                                            null,
-                                            null);
-
-                            return !favSeries.contains(tmpSeries);
-                        }
-                    });
-
-                    /* notify the change */
-                    new Handler(context.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyDataSetChanged();
-                        }
-                    });
-                }
-            }).start();
-        } else {
-            /* notify the change */
-            new Handler(context.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDataSetChanged();
-                }
-            });
-        }
+        /* notify the change */
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     /**
      * Constructor
      * @param context
      *     The context in which the adapter is created
-     * @param onlyFavorites
-     *     True if you want just favorite series to stay in the adapter
      */
-    public EventAdapter(Context context, boolean onlyFavorites){
+    public EventAdapter(Context context){
         this.context = context;
-        this.onlyFavorites = onlyFavorites;
 
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
         this.eventDao = db.getEventDao();

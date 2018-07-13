@@ -34,7 +34,7 @@ public class RacingCalendarUtils {
                         @Override
                         public void onRacingCalendarObjectsReceived(List<RacingCalendar.Event> list) {
                             /* when ready load them into the database */
-                            db.getEventDao().insertAll(list);
+                            db.getEventDao().insertOrUpdateAll(list);
 
                             /* download and add all its sessions in the local database */
                             RacingCalendarGetter.getSessionOfSeries(series.shortName,
@@ -43,7 +43,7 @@ public class RacingCalendarUtils {
                                         public void onRacingCalendarObjectsReceived(
                                                 List<RacingCalendar.Session> list) {
                                             /* when ready load the into the database */
-                                            db.getSessionDao().insertAll(list);
+                                            db.getSessionDao().insertOrUpdateAll(list);
 
                                             /* subscribe to all */
                                             racingCalendarNotifier

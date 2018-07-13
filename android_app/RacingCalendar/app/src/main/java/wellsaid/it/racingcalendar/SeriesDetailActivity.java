@@ -66,7 +66,7 @@ public class SeriesDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        eventAdapter = new EventAdapter(this, false);
+        eventAdapter = new EventAdapter(this);
         calendarRecyclerView.setAdapter(eventAdapter);
         calendarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -95,7 +95,8 @@ public class SeriesDetailActivity extends AppCompatActivity {
                 /* from local database if series is favorite */
                 if(series.favorite) {
                     final List<RacingCalendar.Event> list = RacingCalendarDatabase
-                            .getDatabaseFromContext(context).getEventDao().getAll();
+                            .getDatabaseFromContext(context).getEventDao()
+                            .getAllOfSeries(series.shortName);
 
                     /* When the list has been retrieved */
                     new Handler(context.getMainLooper()).post(new Runnable() {
