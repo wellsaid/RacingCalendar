@@ -66,7 +66,7 @@ public class SeriesDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        eventAdapter = new EventAdapter(this);
+        eventAdapter = new EventAdapter(this, false);
         calendarRecyclerView.setAdapter(eventAdapter);
         calendarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -163,15 +163,19 @@ public class SeriesDetailActivity extends AppCompatActivity {
                 /* toggle series favorite status */
                 series.favorite = !series.favorite;
 
-                /* Perform operations on favorite status change */
                 final Context context = this;
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        /* Perform operations on favorite status change */
                         RacingCalendarUtils.seriesFavoriteStatusChanged(context, series);
+
+                        /* notify the adapter of the change */
+                        eventAdapter.notifyChangeFavoriteStatus();
                     }
                 }).start();
 
+                /* set the icon of the action button */
                 item.setIcon((series.favorite)?R.mipmap.heart_on:R.mipmap.heart_off);
                 return true;
         }

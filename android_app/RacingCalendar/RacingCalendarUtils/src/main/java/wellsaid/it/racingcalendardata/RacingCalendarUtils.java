@@ -3,6 +3,7 @@ package wellsaid.it.racingcalendardata;
 import android.content.Context;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Class which will contain helper methods to perform
@@ -27,6 +28,7 @@ public class RacingCalendarUtils {
             db.getSeriesDao().insertOrUpdate(series);
 
             /* download and add all its events in the local database */
+            final CountDownLatch latch = new CountDownLatch(1);
             RacingCalendarGetter.getEventsOfSeries(series.shortName,
                     new RacingCalendarGetter.Listener<RacingCalendar.Event>() {
                         @Override
@@ -46,12 +48,20 @@ public class RacingCalendarUtils {
                                             /* subscribe to all */
                                             racingCalendarNotifier
                                                     .addSessionsNotifications(context, list);
+
+                                            latch.countDown();
                                             /* TODO: Subsribe based on user settings (all, just race ...) */
                                         }
                                     });
                         }
                     });
-            /* if the series just becomed un-favorite */
+
+            try {
+                latch.await();
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        /* if the series just becomed un-favorite */
         } else {
             RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
 

@@ -117,22 +117,24 @@ public class RacingCalendarNotifier {
                 public void run() {
                     /* Retrieve session and related objects */
                     List<RacingCalendar.Session> sessions = db.getSessionDao().getAllNotify();
-                    RacingCalendar.Session nextSession = sessions.get(0);
-                    RacingCalendar.Event event = db.getEventDao()
-                            .getByIDAndSeriesShortName(
-                                    nextSession.eventID, nextSession.seriesShortName);
-                    RacingCalendar.Series series = db.getSeriesDao()
-                            .getByShortName(nextSession.seriesShortName);
+                    if(sessions != null && sessions.size() > 0) {
+                        RacingCalendar.Session nextSession = sessions.get(0);
+                        RacingCalendar.Event event = db.getEventDao()
+                                .getByIDAndSeriesShortName(
+                                        nextSession.eventID, nextSession.seriesShortName);
+                        RacingCalendar.Series series = db.getSeriesDao()
+                                .getByShortName(nextSession.seriesShortName);
 
-                    /* Show notification for the Series/Event/Session */
-                    showNotification(series, event, nextSession, context);
+                        /* Show notification for the Series/Event/Session */
+                        showNotification(series, event, nextSession, context);
 
-                    if(notifierInstance != null){
-                        /* Remove first session from the list of notify one */
-                        notifierInstance.removeSessionNotification(context, nextSession);
+                        if (notifierInstance != null) {
+                            /* Remove first session from the list of notify one */
+                            notifierInstance.removeSessionNotification(context, nextSession);
 
-                        /* Schedule wake up for next element in the list */
-                        notifierInstance.startNotifications(context);
+                            /* Schedule wake up for next element in the list */
+                            notifierInstance.startNotifications(context);
+                        }
                     }
                 }
             });
@@ -203,7 +205,7 @@ public class RacingCalendarNotifier {
         /* Insert (or update) this sessions to the database as one to be notified */
         for(RacingCalendar.Session session : sessions){
             /* if this session ends in the past -> skip it */
-            if(session.endDateTime != null &&
+            if(session.endDateTime == null ||
                     session.endDateTime.before(Calendar.getInstance().getTime())){
                 continue;
             }
