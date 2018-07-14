@@ -67,7 +67,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }
     }
 
-    /* The series which are shown */
+    /* The events which are shown */
     private List<RacingCalendar.Event> eventsList = null;
 
     /* The context in which the adapter is created */
@@ -255,16 +255,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         });
     }
 
-    /**
-     * Clears all events from the adapter
-     */
-    public void clear(){
-        if(eventsList != null) {
-            eventsList.clear();
-            notifyDataSetChanged();
-        }
-    }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -278,7 +268,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         /* Take the series we have to show */
         final RacingCalendar.Event event = eventsList.get(position);
 
-        /* TODO: Define on click listener for the card to open EventDetailActivity */
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

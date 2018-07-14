@@ -46,7 +46,7 @@ public class EventDetailActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
     /* the adapter for the recycler view */
-    //SessionAdapter sessionAdapter;
+    SessionAdapter sessionAdapter;
 
     /* the event to show */
     RacingCalendar.Event event;
@@ -80,7 +80,7 @@ public class EventDetailActivity extends AppCompatActivity {
                     recyclerView.setVisibility(View.VISIBLE);
 
                     /* add them to the adapter */
-                    // sessionAdapter.add(sessionList);
+                    sessionAdapter.add(sessionList);
                 }
             }
         });
@@ -100,8 +100,8 @@ public class EventDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        //sessionAdapter = new EventAdapter(this);
-        //recyclerView.setAdapter(sessionAdapter);
+        sessionAdapter = new SessionAdapter(this);
+        recyclerView.setAdapter(sessionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         /* retrieve the event to show in the bundle */
@@ -138,13 +138,15 @@ public class EventDetailActivity extends AppCompatActivity {
 
                 sessionList = db.getSessionDao()
                         .getAllOfEvent(event.ID, event.seriesShortName);
-                if(sessionList != null){
+                if(sessionList != null && sessionList.size() > 0){
                     sessionsRetrieved();
                 } else {
                     RacingCalendarGetter.getSessionOfEvent(event.ID, event.seriesShortName,
                             new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
                         @Override
-                        public void onRacingCalendarObjectsReceived(List<RacingCalendar.Session> list) {
+                        public void onRacingCalendarObjectsReceived(
+                                List<RacingCalendar.Session> list) {
+                            sessionList = list;
                             sessionsRetrieved();
                         }
                     });

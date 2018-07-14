@@ -167,7 +167,7 @@ public class RacingCalendar {
         public Date startDateTime;
         public Date endDateTime;
 
-        boolean notify;
+        public boolean notify;
 
         /**
          * Constructor
