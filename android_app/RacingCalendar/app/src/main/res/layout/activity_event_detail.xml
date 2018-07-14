@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".EventDetailActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -16,23 +14,28 @@
         app:popupTheme="@style/AppTheme.PopupOverlay"
         android:theme="@style/AppTheme.Toolbar"
         app:layout_scrollFlags="scroll|enterAlways"
-        app:title="@string/app_name"
         android:elevation="8dp" />
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tab_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:theme="@style/AppTheme.Toolbar"
-        android:elevation="8dp" />
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/container"
+    <TextView
+        android:id="@+id/error_text_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/tab_layout"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:elevation="4dp"/>
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="@string/error_loading_data"
+        android:textAlignment="center" />
+
+    <ProgressBar
+        android:id="@+id/progressSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

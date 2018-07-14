@@ -79,8 +79,6 @@ public class HomeTab extends Fragment {
         /* Inflate the layout for this fragment */
         View view = inflater.inflate(R.layout.fragment_home_tab, container, false);
 
-        /* TODO: Define on click listener for the card to open EventDetailActivity */
-
         /* Bind the views of this fragment */
         ButterKnife.bind(this, view);
 

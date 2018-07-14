@@ -76,6 +76,10 @@ public class RacingCalendarDaos {
         List<Session> getAllOfSeries(String seriesShortName);
 
         @Query("SELECT * FROM Session WHERE eventID IN (:eventID) " +
+                "AND seriesShortName IN (:seriesShortName)")
+        List<Session> getAllOfEvent(String eventID, String seriesShortName);
+
+        @Query("SELECT * FROM Session WHERE eventID IN (:eventID) " +
                 "AND seriesShortName IN (:seriesShortName)" +
                 "AND notify IN (:notify)")
         List<Session> getAllOfEvent(String eventID, String seriesShortName, int notify);

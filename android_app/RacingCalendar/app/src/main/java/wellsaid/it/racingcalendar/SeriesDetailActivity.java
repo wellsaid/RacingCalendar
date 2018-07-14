@@ -139,8 +139,6 @@ public class SeriesDetailActivity extends AppCompatActivity {
                .into(toolbarImageView);
 
         descriptionTextView.setText(series.description);
-
-        /* TODO: set adapter and layout manager for the recycler view */
     }
 
     @Override

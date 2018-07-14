@@ -92,6 +92,7 @@ public class RacingCalendar {
     /**
      * Object containing information about a event
      */
+    @Parcel
     @Entity(primaryKeys = {"ID","seriesShortName"})
     public static class Event {
 
@@ -112,6 +113,7 @@ public class RacingCalendar {
          * @param startDate
          * @param endDate
          */
+        @ParcelConstructor
         public Event(String ID,
                       String seriesShortName,
                       String eventName,

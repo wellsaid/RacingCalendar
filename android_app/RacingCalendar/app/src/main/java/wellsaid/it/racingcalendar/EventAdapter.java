@@ -1,6 +1,7 @@
 package wellsaid.it.racingcalendar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.parceler.Parcels;
 import org.w3c.dom.Text;
 
 import java.text.DateFormat;
@@ -55,9 +57,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         @BindView(R.id.notify_image_button)
         ImageButton notifyImageButton;
 
+        View view;
+
         public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+
+            this.view = view;
         }
     }
 
@@ -271,6 +277,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         /* Take the series we have to show */
         final RacingCalendar.Event event = eventsList.get(position);
+
+        /* TODO: Define on click listener for the card to open EventDetailActivity */
+        holder.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /* launch the event detail activity */
+                Intent intent = new Intent(context, EventDetailActivity.class);
+                intent.putExtra(EventDetailActivity.EVENT_BUNDLE_KEY, Parcels.wrap(event));
+                context.startActivity(intent);
+            }
+        });
 
         new Thread(new Runnable() {
             @Override
