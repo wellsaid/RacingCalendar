@@ -230,24 +230,9 @@ public class RacingCalendarNotifier {
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
-        /* Retrieve the list of favorite series */
-        List<RacingCalendar.Series> favSeriesList = db.getSeriesDao().getAllFavorites();
-
-        /* If it is of a favorite series simply put notify = false */
-        if(favSeriesList.contains(
-                new RacingCalendar.Series(session.seriesShortName,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null))) {
-
-            session.notify = false;
-            db.getSessionDao().update(session);
-        /* Otherwise remove it from the database */
-        } else {
-            db.getSessionDao().delete(session);
-        }
+        /* mark session as not to be notified in the local database */
+        session.notify = false;
+        db.getSessionDao().update(session);
     }
 
     /**
@@ -262,26 +247,11 @@ public class RacingCalendarNotifier {
         /* Get database instance from context */
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
 
-        /* Retrieve the list of favorite series */
-        List<RacingCalendar.Series> favSeriesList = db.getSeriesDao().getAllFavorites();
-
         /* For each session passed */
         for(RacingCalendar.Session session : sessions) {
-            /* If it is of a favorite series simply put notify = false */
-            if (favSeriesList.contains(
-                    new RacingCalendar.Series(session.seriesShortName,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null))) {
-
-                session.notify = false;
-                db.getSessionDao().update(session);
-                /* Otherwise remove it from the database */
-            } else {
-                db.getSessionDao().delete(session);
-            }
+            /* mark session as not to be notified in the local database */
+            session.notify = false;
+            db.getSessionDao().update(session);
         }
     }
 
