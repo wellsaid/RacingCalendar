@@ -36,14 +36,33 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         @BindView(R.id.notify_image_button)
         ImageButton notifyImageButton;
 
+        @BindView(R.id.date_text_view)
+        TextView dateTextView;
+
         public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
         }
     }
 
-    /* the sessions which are shown */
-    private List<RacingCalendar.Session> sessionList = null;
+    /* The class of elements which can be contained in this adapter */
+    private class Element {
+        static final int TYPE_HEADER = 0;
+        static final int TYPE_SESSION = 1;
+
+        int type;
+        String headerDate = null;
+        RacingCalendar.Session session = null;
+
+        Element(int type, String headerDate, RacingCalendar.Session session){
+            this.type = type;
+            this.headerDate = headerDate;
+            this.session = session;
+        }
+    }
+
+    /* the elements which are shown */
+    private List<Element> elemList;
 
     /* the notifier object */
     private RacingCalendarNotifier racingCalendarNotifier;
@@ -62,7 +81,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
     public SessionAdapter(Context context){
         this.context = context;
 
-        this.sessionList = new ArrayList<>();
+        this.elemList = new ArrayList<>();
 
         racingCalendarNotifier = RacingCalendarNotifier.getInstance();
         sessionDao =
@@ -70,19 +89,41 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
     }
 
     /**
-     * Add a list of sessions to the adapter
+     * Replace the list of sessions to the adapter
      * @param newSessionList
-     *     The event list to add
+     *     The event list to replace
      */
-    public void add(List<RacingCalendar.Session> newSessionList){
-        sessionList.addAll(newSessionList);
+    public void replace(List<RacingCalendar.Session> newSessionList){
+        /* clear the current element list */
+        elemList.clear();
 
-        sessionList.sort(new Comparator<RacingCalendar.Session>() {
+        /* sort all sessions by start time */
+        newSessionList.sort(new Comparator<RacingCalendar.Session>() {
             @Override
             public int compare(RacingCalendar.Session session, RacingCalendar.Session session1) {
                 return session.startDateTime.compareTo(session1.startDateTime);
             }
         });
+
+        /* build the element list */
+        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+        String curDate = null;
+
+        /* for each session in the new list */
+        for(RacingCalendar.Session session: newSessionList){
+            String sessionDate = dateFormat.format(session.startDateTime);
+            /* if this is a new date */
+            if(curDate == null || !curDate.equals(sessionDate)) {
+                /* update current date */
+                curDate = sessionDate;
+
+                /* put a header in the element list */
+                elemList.add(new Element(Element.TYPE_HEADER, curDate, null));
+            }
+
+            /* put session in the list */
+            elemList.add(new Element(Element.TYPE_SESSION, null, session));
+        }
 
         notifyDataSetChanged();
     }
@@ -98,51 +139,67 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        /* Take the session we have to show */
-        final RacingCalendar.Session session = sessionList.get(position);
+        /* Take the element we have to show */
+        final Element element = elemList.get(position);
 
-        /* fill the element */
-        holder.sessionNameTextView.setText(session.completeName);
+        switch (element.type){
+            case Element.TYPE_HEADER:
+                /* hide all other element */
+                holder.sessionNameTextView.setVisibility(View.GONE);
+                holder.sessionTimeTextView.setVisibility(View.GONE);
+                holder.notifyImageButton.setVisibility(View.GONE);
 
-        DateFormat dateFormat = SimpleDateFormat.getTimeInstance();
-        StringBuilder sessionTimeStringBuilder = new StringBuilder()
-                .append(dateFormat.format(session.startDateTime))
-                .append(" - ")
-                .append(dateFormat.format(session.endDateTime));
+                /* show the date textview */
+                holder.dateTextView.setVisibility(View.VISIBLE);
+                holder.dateTextView.setText(element.headerDate);
+                break;
+            case Element.TYPE_SESSION:
+                final RacingCalendar.Session session = element.session;
 
-        holder.sessionTimeTextView.setText(sessionTimeStringBuilder.toString());
+                /* fill the element */
+                holder.sessionNameTextView.setText(session.completeName);
 
-        holder.notifyImageButton
-                .setImageResource((session.notify)?R.mipmap.clock_on:R.mipmap.clock_off);
+                DateFormat dateFormat = SimpleDateFormat.getTimeInstance();
+                StringBuilder sessionTimeStringBuilder = new StringBuilder()
+                        .append(dateFormat.format(session.startDateTime))
+                        .append(" - ")
+                        .append(dateFormat.format(session.endDateTime));
 
-        /* set on click listener for notify image button */
-        holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /* toggle session notify status */
-                session.notify = !session.notify;
+                holder.sessionTimeTextView.setText(sessionTimeStringBuilder.toString());
+
                 holder.notifyImageButton
                         .setImageResource((session.notify)?R.mipmap.clock_on:R.mipmap.clock_off);
 
-                new Thread(new Runnable() {
+                /* set on click listener for notify image button */
+                holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void run() {
-                        /* update the local database */
-                        if(session.notify){
-                            /* add it from notify sessions */
-                            racingCalendarNotifier.addSessionNotification(context, session);
-                        } else {
-                            /* remove it from notify sessions */
-                            racingCalendarNotifier.removeSessionNotification(context, session);
-                        }
+                    public void onClick(View view) {
+                        /* toggle session notify status */
+                        session.notify = !session.notify;
+                        holder.notifyImageButton
+                                .setImageResource((session.notify)?R.mipmap.clock_on:R.mipmap.clock_off);
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                /* update the local database */
+                                if(session.notify){
+                                    /* add it from notify sessions */
+                                    racingCalendarNotifier.addSessionNotification(context, session);
+                                } else {
+                                    /* remove it from notify sessions */
+                                    racingCalendarNotifier.removeSessionNotification(context, session);
+                                }
+                            }
+                        });
                     }
                 });
-            }
-        });
+                break;
+        }
     }
 
     @Override
     public int getItemCount() {
-        return (sessionList == null)?0:sessionList.size();
+        return (elemList == null)?0:elemList.size();
     }
 }

@@ -82,7 +82,7 @@ public class EventDetailActivity extends AppCompatActivity {
                     recyclerView.setVisibility(View.VISIBLE);
 
                     /* add them to the adapter */
-                    sessionAdapter.add(sessionList);
+                    sessionAdapter.replace(sessionList);
                 }
             }
         });

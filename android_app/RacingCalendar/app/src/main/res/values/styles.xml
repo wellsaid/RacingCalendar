@@ -52,4 +52,8 @@
     <style name="AppTheme.SessionTimeText" parent="AppTheme.EventSeriesTimes">
         <item name="android:textColor">@android:color/black</item>
     </style>
+
+    <style name="AppTheme.EventDateText" parent="AppTheme.SeriesNameText">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
 </resources>
