@@ -81,6 +81,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* the notifier object */
     private RacingCalendarNotifier racingCalendarNotifier;
 
+    /* true if the caller wants only future events to be shown */
+    private boolean onlyFuture;
+
     /* helper method which contains the on click listener for a generic event alarm image button */
     private void notifyImageButtonOnClickListener(final RacingCalendar.Event event,
                                                   final ViewHolder holder){
@@ -207,9 +210,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      * Constructor
      * @param context
      *     The context in which the adapter is created
+     * @param onlyFuture
+     *     True if the caller wants only future events to be shown
      */
-    public EventAdapter(Context context){
+    public EventAdapter(Context context, boolean onlyFuture){
         this.context = context;
+        this.onlyFuture = onlyFuture;
 
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
         this.eventDao = db.getEventDao();
@@ -227,13 +233,15 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      *     The event list to add
      */
     public void add(List<RacingCalendar.Event> newEventList){
-        /* remove all past events from the list */
-        newEventList.removeIf(new Predicate<RacingCalendar.Event>() {
-            @Override
-            public boolean test(RacingCalendar.Event event) {
-                return event.endDate.before(Calendar.getInstance().getTime());
-            }
-        });
+        if(onlyFuture) {
+            /* remove all past events from the list */
+            newEventList.removeIf(new Predicate<RacingCalendar.Event>() {
+                @Override
+                public boolean test(RacingCalendar.Event event) {
+                    return event.endDate.before(Calendar.getInstance().getTime());
+                }
+            });
+        }
 
         /* add remaining event to the list */
         eventsList.addAll(newEventList);

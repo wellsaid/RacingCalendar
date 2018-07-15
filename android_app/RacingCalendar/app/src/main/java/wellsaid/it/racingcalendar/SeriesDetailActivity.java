@@ -66,7 +66,7 @@ public class SeriesDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        eventAdapter = new EventAdapter(this);
+        eventAdapter = new EventAdapter(this, false);
         calendarRecyclerView.setAdapter(eventAdapter);
         calendarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 

@@ -83,7 +83,7 @@ public class HomeTab extends Fragment {
         ButterKnife.bind(this, view);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        eventAdapter = new EventAdapter(getContext());
+        eventAdapter = new EventAdapter(getContext(), true);
         recyclerView.setAdapter(eventAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
