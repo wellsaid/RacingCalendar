@@ -14,6 +14,7 @@ import android.support.v7.widget.DrawableUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
+import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class EventDetailActivity extends AppCompatActivity {
 
@@ -104,6 +106,15 @@ public class EventDetailActivity extends AppCompatActivity {
         recyclerView.setAdapter(sessionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        /* initialize the action bar */
+        setSupportActionBar(toolbar);
+
+        /* set up navigation button in the action bar */
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         /* retrieve the event to show in the bundle */
         Bundle inputBundle = getIntent().getExtras();
         if(inputBundle != null && !inputBundle.containsKey(EVENT_BUNDLE_KEY)) {
@@ -153,5 +164,19 @@ public class EventDetailActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        /* get the option selected */
+        int id = item.getItemId();
+        switch (id){
+            case android.R.id.home:
+                /* close this activity */
+                super.onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

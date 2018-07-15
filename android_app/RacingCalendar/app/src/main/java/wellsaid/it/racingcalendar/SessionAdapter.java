@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -76,6 +76,13 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
      */
     public void add(List<RacingCalendar.Session> newSessionList){
         sessionList.addAll(newSessionList);
+
+        sessionList.sort(new Comparator<RacingCalendar.Session>() {
+            @Override
+            public int compare(RacingCalendar.Session session, RacingCalendar.Session session1) {
+                return session.startDateTime.compareTo(session1.startDateTime);
+            }
+        });
 
         notifyDataSetChanged();
     }
