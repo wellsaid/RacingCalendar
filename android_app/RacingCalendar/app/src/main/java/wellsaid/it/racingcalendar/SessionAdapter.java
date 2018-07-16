@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -159,13 +160,13 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                 /* fill the element */
                 holder.sessionNameTextView.setText(session.completeName);
 
-                DateFormat dateFormat = SimpleDateFormat.getTimeInstance();
-                StringBuilder sessionTimeStringBuilder = new StringBuilder()
-                        .append(dateFormat.format(session.startDateTime))
-                        .append(" - ")
-                        .append(dateFormat.format(session.endDateTime));
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                String sessionTimeString =
+                        dateFormat.format(session.startDateTime) +
+                        " - " +
+                        dateFormat.format(session.endDateTime);
 
-                holder.sessionTimeTextView.setText(sessionTimeStringBuilder.toString());
+                holder.sessionTimeTextView.setText(sessionTimeString);
 
                 holder.notifyImageButton
                         .setImageResource((session.notify)?R.mipmap.clock_on:R.mipmap.clock_off);

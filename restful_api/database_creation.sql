@@ -29,8 +29,8 @@ CREATE TABLE sessions (
 	sessionType VARCHAR(20) NOT NULL,
 	eventID INTEGER NOT NULL,
 	seriesShortName VARCHAR(10) NOT NULL,
-	startDateTime DATETIME NOT NULL,
-	endDateTime DATETIME,
+	startDateTime VARCHAR(30) NOT NULL,
+	endDateTime VARCHAR(30) NOT NULL,
 	FOREIGN KEY (eventID, seriesShortName) REFERENCES events(ID, seriesShortName),
 	PRIMARY KEY (shortName, eventID, seriesShortName)
 );

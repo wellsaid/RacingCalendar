@@ -32,7 +32,7 @@ public class RacingCalendarGetter {
     /* Helper method to retrieve RacingCalendar object from a JSON server response */
     private static List<Object> jsonArrayToObjectList(String table, String responseBody){
         Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .setDateFormat("yyyy-MM-dd HH:mm:ssX")
                 .create();
 
         /* Choose what objects to parse based on the table */
@@ -55,6 +55,7 @@ public class RacingCalendarGetter {
         try {
             return gson.fromJson(responseBody, listType);
         } catch (JsonSyntaxException e) {
+            e.printStackTrace();
             return null;
         }
     }
