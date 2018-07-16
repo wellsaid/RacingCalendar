@@ -1,5 +1,8 @@
 package wellsaid.it.racingcalendar;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -111,8 +114,14 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* load the configuration for the app */
-        RacingCalendarNotifier.getInstance().setConfiguration(15,
-                RacingCalendarNotifier.SUB_QP_RAC_MODE);
+        SharedPreferences sharedPref = getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        Resources resources = getResources();
+        int minBefore = sharedPref.getInt(getString(R.string.min_before_key),
+                resources.getInteger(R.integer.min_before_default));
+        int subMode = sharedPref.getInt(getString(R.string.sub_mode_key),
+                resources.getInteger(R.integer.sub_mode_default));
+        RacingCalendarNotifier.getInstance().setConfiguration(minBefore, subMode);
 
         /* initialize the action bar */
         setSupportActionBar(toolbar);

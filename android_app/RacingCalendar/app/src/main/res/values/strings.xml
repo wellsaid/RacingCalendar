@@ -20,4 +20,10 @@
     <string name="dates">Dates</string>
     <string name="description">Description</string>
     <string name="calendar">Calendar</string>
+
+    <!-- settings -->
+    <string name="preference_file_key" translatable="false">
+        wellsaid.it.racingcalendar.settings_file</string>
+    <string name="min_before_key" translatable="false">min_before</string>
+    <string name="sub_mode_key" translatable="false">sub_mode</string>
 </resources>

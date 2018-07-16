@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="min_before_default">15</integer>
+    <integer name="sub_mode_default">2</integer> <!-- SUB_QP_RAC_MODE -->
+</resources>
