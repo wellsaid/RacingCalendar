@@ -16,7 +16,7 @@ public class RacingCalendarUtils {
      *
      */
     public static void seriesFavoriteStatusChanged(final Context context,
-                                             final RacingCalendar.Series series){
+                                                   final RacingCalendar.Series series){
         final RacingCalendarDatabase db =
                 RacingCalendarDatabase.getDatabaseFromContext(context);
         final RacingCalendarNotifier racingCalendarNotifier =
@@ -50,7 +50,6 @@ public class RacingCalendarUtils {
                                                     .addSessionsNotifications(context, list);
 
                                             latch.countDown();
-                                            /* TODO: Subsribe based on user settings (all, just race ...) */
                                         }
                                     });
                         }

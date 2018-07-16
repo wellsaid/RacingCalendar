@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
+import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -108,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
 
         /* bind the views to corresponding variables */
         ButterKnife.bind(this);
+
+        /* load the configuration for the app */
+        RacingCalendarNotifier.getInstance().setConfiguration(15,
+                RacingCalendarNotifier.SUB_QP_RAC_MODE);
 
         /* initialize the action bar */
         setSupportActionBar(toolbar);

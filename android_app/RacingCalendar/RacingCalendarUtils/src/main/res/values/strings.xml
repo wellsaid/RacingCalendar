@@ -11,4 +11,8 @@
     <!-- Notification strings -->
     <string name="starting_in">starting in</string>
     <string name="minutes">minutes</string>
+
+    <!-- session types -->
+    <string name="qualifying">Qualifying</string>
+    <string name="race">Race</string>
 </resources>

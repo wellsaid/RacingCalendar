@@ -26,6 +26,7 @@ import butterknife.ButterKnife;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
+import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
 import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class SeriesDetailActivity extends AppCompatActivity {
