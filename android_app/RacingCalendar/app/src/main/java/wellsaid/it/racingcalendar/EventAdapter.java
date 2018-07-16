@@ -170,27 +170,33 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             }
         });
 
-        /* Check if the event has some sessions to be notified */
-        final List<RacingCalendar.Session> notifySessions =
-                sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-        final boolean hasSessionToNotify = notifySessions.size() > 0;
+        /* Check if the event is past */
+        if(event.endDate.before(Calendar.getInstance().getTime())){
+            /* remove notify button */
+            holder.notifyImageButton.setVisibility(View.GONE);
+        } else {
+            /* Check if the event has some sessions to be notified */
+            final List<RacingCalendar.Session> notifySessions =
+                    sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+            final boolean hasSessionToNotify = notifySessions.size() > 0;
 
-        new Handler(context.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                /* change icon accordingly */
-                holder.notifyImageButton.setImageResource(
-                        (hasSessionToNotify) ? R.mipmap.clock_on : R.mipmap.clock_off);
-            }
-        });
+            new Handler(context.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    /* change icon accordingly */
+                    holder.notifyImageButton.setImageResource(
+                            (hasSessionToNotify) ? R.mipmap.clock_on : R.mipmap.clock_off);
+                }
+            });
 
-        /* set on click listener for notify image button */
-        holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                notifyImageButtonOnClickListener(event, holder);
-            }
-        });
+            /* set on click listener for notify image button */
+            holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    notifyImageButtonOnClickListener(event, holder);
+                }
+            });
+        }
     }
 
     /**

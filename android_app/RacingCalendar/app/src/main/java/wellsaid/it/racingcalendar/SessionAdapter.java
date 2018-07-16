@@ -7,11 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -171,30 +173,41 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                 holder.notifyImageButton
                         .setImageResource((session.notify)?R.mipmap.clock_on:R.mipmap.clock_off);
 
-                /* set on click listener for notify image button */
-                holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        /* toggle session notify status */
-                        session.notify = !session.notify;
-                        holder.notifyImageButton
-                                .setImageResource((session.notify)?R.mipmap.clock_on:R.mipmap.clock_off);
+                /* Check if the session is past */
+                if(session.endDateTime.before(Calendar.getInstance().getTime())){
+                    holder.notifyImageButton.setVisibility(View.GONE);
 
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                /* update the local database */
-                                if(session.notify){
-                                    /* add it from notify sessions */
-                                    racingCalendarNotifier.addSessionNotification(context, session);
-                                } else {
-                                    /* remove it from notify sessions */
-                                    racingCalendarNotifier.removeSessionNotification(context, session);
+                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.WRAP_CONTENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    holder.sessionTimeTextView.setLayoutParams(params);
+                } else {
+                    /* set on click listener for notify image button */
+                    holder.notifyImageButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            /* toggle session notify status */
+                            session.notify = !session.notify;
+                            holder.notifyImageButton
+                                    .setImageResource((session.notify) ? R.mipmap.clock_on : R.mipmap.clock_off);
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    /* update the local database */
+                                    if (session.notify) {
+                                        /* add it from notify sessions */
+                                        racingCalendarNotifier.addSessionNotification(context, session);
+                                    } else {
+                                        /* remove it from notify sessions */
+                                        racingCalendarNotifier.removeSessionNotification(context, session);
+                                    }
                                 }
-                            }
-                        });
-                    }
-                });
+                            });
+                        }
+                    });
+                }
                 break;
         }
     }
