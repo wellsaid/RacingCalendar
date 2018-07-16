@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:title="Minutes Before"
+        android:summary="Specify how many minute before a session the user wants to be notified"
+        android:key="@string/min_before_key"
+        android:defaultValue="@integer/min_before_default"
+        android:inputType="number" />
+
+    <ListPreference
+        android:title="Subscribe mode"
+        android:summary="Specify to which session type subscribe when the user adds a series to favorite or an event to notify"
+        android:defaultValue="@integer/sub_mode_default"
+        android:key="@string/sub_mode_key"
+        android:entries="@array/sub_mode_labels"
+        android:entryValues="@array/sub_mode_values"
+        />
+
+</PreferenceScreen>

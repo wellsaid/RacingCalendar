@@ -1,8 +1,12 @@
 package wellsaid.it.racingcalendar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -114,13 +119,12 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* load the configuration for the app */
-        SharedPreferences sharedPref = getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         Resources resources = getResources();
-        int minBefore = sharedPref.getInt(getString(R.string.min_before_key),
-                resources.getInteger(R.integer.min_before_default));
-        int subMode = sharedPref.getInt(getString(R.string.sub_mode_key),
-                resources.getInteger(R.integer.sub_mode_default));
+        int minBefore = Integer.valueOf(sharedPref.getString(getString(R.string.min_before_key),
+                String.valueOf(resources.getInteger(R.integer.min_before_default))));
+        int subMode = Integer.valueOf(sharedPref.getString(getString(R.string.sub_mode_key),
+                String.valueOf(resources.getInteger(R.integer.sub_mode_default))));
         RacingCalendarNotifier.getInstance().setConfiguration(minBefore, subMode);
 
         /* initialize the action bar */
@@ -169,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_settings:
-                /* TODO: Start the settings activity */
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
         }
 
