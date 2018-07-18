@@ -159,14 +159,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 holder.circuitNameTextView.setText(event.circuitName);
 
                 DateFormat dateFormat = SimpleDateFormat.getDateInstance();
-                StringBuilder datesStringBuilder = new StringBuilder()
-                        .append(context.getString(R.string.dates))
-                        .append(": ")
-                        .append(dateFormat.format(event.startDate))
-                        .append(" - ")
-                        .append(dateFormat.format(event.endDate));
+                String datesString = context.getString(R.string.dates) + ": " + dateFormat.format(event.startDate) +
+                        " - " + dateFormat.format(event.endDate);
 
-                holder.eventTimesTextView.setText(datesStringBuilder.toString());
+                holder.eventTimesTextView.setText(datesString);
             }
         });
 
