@@ -1,12 +1,10 @@
 package wellsaid.it.racingcalendar;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -94,6 +92,7 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
         Bundle extras = new Bundle();
         extras.putParcelable(EventDetailActivity.EVENT_BUNDLE_KEY, Parcels.wrap(event));
         Intent fillIntent = new Intent();
+        fillIntent.setAction(NextEventsWidgetIntentService.LAUNCH_DETAIL_ACTION);
         fillIntent.putExtras(extras);
         row.setOnClickFillInIntent(R.id.card, fillIntent);
 
@@ -115,9 +114,10 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
 
         /* add on click pending intent for the notify icon */
         extras = new Bundle();
-        extras.putParcelable(EventNotifyService.EVENT_BUNDLE_KEY, Parcels.wrap(event));
+        extras.putParcelable(NextEventsWidgetIntentService.EVENT_BUNDLE_KEY, Parcels.wrap(event));
         fillIntent = new Intent();
         fillIntent.putExtras(extras);
+        fillIntent.setAction(NextEventsWidgetIntentService.NOTIFY_TOGGLE_ACTION);
         row.setOnClickFillInIntent(R.id.notify_image_button, fillIntent);
 
         return(row);

@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.RemoteViews;
 
-import org.parceler.Parcels;
-
 public class NextEventsWidgetProvider extends AppWidgetProvider {
 
     public static void updateAll(Context context, AppWidgetManager appWidgetManager,
@@ -32,21 +30,24 @@ public class NextEventsWidgetProvider extends AppWidgetProvider {
         widget.setRemoteAdapter(R.id.widget_list_view, svcIntent);
 
         /* Set pending intent templates for the elements */
-        Intent clickIntent = new Intent(context, EventDetailActivity.class);
-        PendingIntent clickPI = PendingIntent.getActivity(
+        //Intent clickIntent = new Intent(context, EventDetailActivity.class);
+        Intent intent = new Intent(context, NextEventsWidgetIntentService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(
                 context,
                 0,
-                clickIntent,
+                intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        //widget.setPendingIntentTemplate(R.id.widget_list_view, clickPI);
+        widget.setPendingIntentTemplate(R.id.widget_list_view, pendingIntent);
 
-        Intent eventNotifyIntent = new Intent(context, EventNotifyService.class);
+        /*
+        Intent eventNotifyIntent = new Intent(context, NextEventsWidgetIntentService.class);
         PendingIntent eventNotifyPI = PendingIntent.getService(
                 context,
                 0,
                 eventNotifyIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        widget.setPendingIntentTemplate(R.id.widget_list_view, eventNotifyPI);
+        widget.setPendingIntentTemplate(R.id.notify_image_button, eventNotifyPI);
+        */
 
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list_view);
 

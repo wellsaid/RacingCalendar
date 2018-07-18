@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 
 import org.parceler.Parcels;
@@ -18,25 +17,27 @@ import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
 
-public class EventNotifyService extends IntentService {
+public class NextEventsWidgetIntentService extends IntentService {
 
-    public static String EVENT_BUNDLE_KEY = "event";
+    public static final String LAUNCH_DETAIL_ACTION = "launch_detail";
+    public static final String NOTIFY_TOGGLE_ACTION = "notify_toggle";
 
-    public EventNotifyService() {
-        super(EventNotifyService.class.getSimpleName());
+    public static final String EVENT_BUNDLE_KEY = "event";
+
+    public NextEventsWidgetIntentService() {
+        super(NextEventsWidgetIntentService.class.getSimpleName());
     }
 
-    private void notifyImageButtonOnClickListener(final Context context,
-                                                  final RacingCalendar.Event event){
+    private static void handleNotifyToggleAction(final Context context,
+                                          RacingCalendar.Event event){
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
-        final RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
-        final RacingCalendarDaos.EventDao eventDao = db.getEventDao();
+        RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
 
         final RacingCalendarNotifier racingCalendarNotifier = RacingCalendarNotifier.getInstance();
 
-        final List<RacingCalendar.Session> notifySessions =
+        List<RacingCalendar.Session> notifySessions =
                 sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-        final boolean hasSessionToNotify = notifySessions.size() > 0;
+        boolean hasSessionToNotify = notifySessions.size() > 0;
 
         /* if we had session to notify */
         if(hasSessionToNotify){
@@ -64,17 +65,27 @@ public class EventNotifyService extends IntentService {
         NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
     }
 
+    private static void handleLaunchDetailAction(Context context, RacingCalendar.Event event){
+        Intent intent = new Intent(context, EventDetailActivity.class);
+        intent.putExtra(EventDetailActivity.EVENT_BUNDLE_KEY, Parcels.wrap(event));
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        if(intent != null) {
+        if(intent != null && intent.getAction() != null) {
             RacingCalendar.Event event = Parcels.unwrap(intent.getParcelableExtra(EVENT_BUNDLE_KEY));
-            notifyImageButtonOnClickListener(this, event);
 
-            /* update the widgets */
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                    new ComponentName(this, NextEventsWidgetProvider.class));
-            NextEventsWidgetProvider.updateAll(this, appWidgetManager, appWidgetIds);
+            switch (intent.getAction()){
+                case NOTIFY_TOGGLE_ACTION:
+                    handleNotifyToggleAction(this, event);
+                    break;
+                case LAUNCH_DETAIL_ACTION:
+                    handleLaunchDetailAction(this, event);
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
         }
     }
 }
