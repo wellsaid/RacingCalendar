@@ -36,6 +36,7 @@ import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
+import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 /**
  * The Adapter to show series "cards"
@@ -93,35 +94,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final List<RacingCalendar.Session> notifySessions1 =
+                final List<RacingCalendar.Session> notifySessions =
                         sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-                final boolean hasSessionToNotify1 = notifySessions1.size() > 0;
+                final boolean hasSessionToNotify = notifySessions.size() > 0;
 
-                /* if we had session to notify */
-                if(hasSessionToNotify1){
-                    /* remove them from the notifier */
-                    racingCalendarNotifier.removeSessionNotifications(context, notifySessions1);
-                } else {
-                    /* retrieve session to notify */
-                    RacingCalendarGetter.getSessionOfEvent(
-                            event.ID,
-                            event.seriesShortName,
-                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
-                                @Override
-                                public void onRacingCalendarObjectsReceived(
-                                        List<RacingCalendar.Session> list) {
-                                    /* add them to the notifier */
-                                    racingCalendarNotifier.addSessionsNotifications(context, list);
-                                }
-                            });
-                }
+                /* Perform operations on notify status change */
+                RacingCalendarUtils.eventNotifyStatusChanged(context, event, !hasSessionToNotify);
 
                 new Handler(context.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         /* change icon accordingly */
                         holder.notifyImageButton.setImageResource(
-                                (hasSessionToNotify1)?R.mipmap.clock_off:
+                                (hasSessionToNotify)?R.mipmap.clock_off:
                                         R.mipmap.clock_on);
                     }
                 });

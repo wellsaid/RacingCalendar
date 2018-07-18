@@ -28,6 +28,7 @@ import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
+import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHolder> {
 
@@ -195,6 +196,9 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                             session.notify = !session.notify;
                             holder.notifyImageButton
                                     .setImageResource((session.notify) ? R.mipmap.clock_on : R.mipmap.clock_off);
+
+                            /* Perform operations on notify status change */
+                            RacingCalendarUtils.sessionNotifyStatusChanged(context, session);
 
                             new Thread(new Runnable() {
                                 @Override

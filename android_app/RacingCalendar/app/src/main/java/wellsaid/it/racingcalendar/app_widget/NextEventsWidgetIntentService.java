@@ -17,6 +17,7 @@ import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
+import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class NextEventsWidgetIntentService extends IntentService {
 
@@ -34,30 +35,13 @@ public class NextEventsWidgetIntentService extends IntentService {
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
         RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
 
-        final RacingCalendarNotifier racingCalendarNotifier = RacingCalendarNotifier.getInstance();
-
         List<RacingCalendar.Session> notifySessions =
                 sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
         boolean hasSessionToNotify = notifySessions.size() > 0;
 
-        /* if we had session to notify */
-        if(hasSessionToNotify){
-            /* remove them from the notifier */
-            racingCalendarNotifier.removeSessionNotifications(context, notifySessions);
-        } else {
-            /* retrieve session to notify */
-            RacingCalendarGetter.getSessionOfEvent(
-                    event.ID,
-                    event.seriesShortName,
-                    new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
-                        @Override
-                        public void onRacingCalendarObjectsReceived(
-                                List<RacingCalendar.Session> list) {
-                            /* add them to the notifier */
-                            racingCalendarNotifier.addSessionsNotifications(context, list);
-                        }
-                    });
-        }
+        /* Perform operations on notify status change */
+        RacingCalendarUtils.eventNotifyStatusChanged(context, event, !hasSessionToNotify);
+
 
         /* update the widgets */
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
