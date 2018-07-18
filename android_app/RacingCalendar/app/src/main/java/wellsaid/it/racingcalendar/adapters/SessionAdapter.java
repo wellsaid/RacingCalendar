@@ -208,7 +208,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                                         racingCalendarNotifier.removeSessionNotification(context, session);
                                     }
                                 }
-                            });
+                            }).start();
 
                             /* update the widgets */
                             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
