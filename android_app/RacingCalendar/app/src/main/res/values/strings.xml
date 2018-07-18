@@ -26,4 +26,8 @@
         wellsaid.it.racingcalendar.settings_file</string>
     <string name="min_before_key" translatable="false">min_before</string>
     <string name="sub_mode_key" translatable="false">sub_mode</string>
+
+    <!-- image descriptions -->
+    <string name="background_thumbnail_description">An image from the series</string>
+    <string name="favorite_button_description">A button to toggle favorite status</string>
 </resources>

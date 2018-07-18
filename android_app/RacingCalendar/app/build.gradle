@@ -29,7 +29,7 @@ dependencies {
     implementation 'com.android.support:preference-v7:27.1.1'
 
     implementation 'com.jakewharton:butterknife:8.8.1'
-    implementation 'com.android.support:support-v4:28.0.0-alpha3'
+    implementation 'com.android.support:support-v4:27.1.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'org.parceler:parceler-api:1.1.11'
