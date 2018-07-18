@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendar.activities;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,6 +15,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import wellsaid.it.racingcalendar.adapters.EventAdapter;
+import wellsaid.it.racingcalendar.R;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 

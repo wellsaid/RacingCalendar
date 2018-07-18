@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendar.settings;
 
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import wellsaid.it.racingcalendar.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

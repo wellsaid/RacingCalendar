@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendar.adapters;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
-import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,11 +24,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import wellsaid.it.racingcalendar.app_widget.NextEventsWidgetProvider;
+import wellsaid.it.racingcalendar.R;
+import wellsaid.it.racingcalendar.activities.EventDetailActivity;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;

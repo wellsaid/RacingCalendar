@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendar.app_widget;
 
 import android.app.IntentService;
 import android.appwidget.AppWidgetManager;
@@ -11,6 +11,7 @@ import org.parceler.Parcels;
 
 import java.util.List;
 
+import wellsaid.it.racingcalendar.activities.EventDetailActivity;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;

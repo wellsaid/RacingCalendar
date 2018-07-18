@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendar.activities;
 
 import android.content.Context;
 import android.os.Handler;
@@ -23,10 +23,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import wellsaid.it.racingcalendar.adapters.EventAdapter;
+import wellsaid.it.racingcalendar.R;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
-import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
 import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class SeriesDetailActivity extends AppCompatActivity {

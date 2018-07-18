@@ -1,16 +1,10 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendar.activities;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DrawableUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -19,19 +13,17 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
 import org.parceler.Parcels;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import wellsaid.it.racingcalendar.R;
+import wellsaid.it.racingcalendar.adapters.SessionAdapter;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
-import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class EventDetailActivity extends AppCompatActivity {
 

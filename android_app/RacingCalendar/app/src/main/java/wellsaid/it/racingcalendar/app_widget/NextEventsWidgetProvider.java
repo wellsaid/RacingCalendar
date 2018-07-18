@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar;
+package wellsaid.it.racingcalendar.app_widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.widget.RemoteViews;
+
+import wellsaid.it.racingcalendar.R;
 
 public class NextEventsWidgetProvider extends AppWidgetProvider {
 
@@ -30,7 +32,6 @@ public class NextEventsWidgetProvider extends AppWidgetProvider {
         widget.setRemoteAdapter(R.id.widget_list_view, svcIntent);
 
         /* Set pending intent templates for the elements */
-        //Intent clickIntent = new Intent(context, EventDetailActivity.class);
         Intent intent = new Intent(context, NextEventsWidgetIntentService.class);
         PendingIntent pendingIntent = PendingIntent.getService(
                 context,
@@ -38,16 +39,6 @@ public class NextEventsWidgetProvider extends AppWidgetProvider {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         widget.setPendingIntentTemplate(R.id.widget_list_view, pendingIntent);
-
-        /*
-        Intent eventNotifyIntent = new Intent(context, NextEventsWidgetIntentService.class);
-        PendingIntent eventNotifyPI = PendingIntent.getService(
-                context,
-                0,
-                eventNotifyIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        widget.setPendingIntentTemplate(R.id.notify_image_button, eventNotifyPI);
-        */
 
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list_view);
 
