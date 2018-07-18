@@ -100,16 +100,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 if(hasSessionToNotify1){
                     /* remove them from the notifier */
                     racingCalendarNotifier.removeSessionNotifications(context, notifySessions1);
-
-                    /* remove them from the database */
-                    sessionDao.deleteAll(notifySessions1);
-
-                    /* remove event from the local database */
-                    eventDao.delete(event);
                 } else {
-                    /* add event to the local database */
-                    eventDao.insert(event);
-
                     /* retrieve session to notify */
                     RacingCalendarGetter.getSessionOfEvent(
                             event.ID,
@@ -120,9 +111,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                                         List<RacingCalendar.Session> list) {
                                     /* add them to the notifier */
                                     racingCalendarNotifier.addSessionsNotifications(context, list);
-
-                                    /* add them to the database */
-                                    sessionDao.insertAll(notifySessions1);
                                 }
                             });
                 }

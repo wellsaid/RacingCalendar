@@ -1,11 +1,11 @@
 package wellsaid.it.racingcalendar;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -97,7 +97,7 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
         fillIntent.putExtras(extras);
         row.setOnClickFillInIntent(R.id.card, fillIntent);
 
-        /* hide not required views */
+        /* set series logo image */
         try {
             Bitmap seriesLogo = Picasso.with(context)
                     .load(series.logoURL)
@@ -109,7 +109,16 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
             e.printStackTrace();
         }
 
-        row.setViewVisibility(R.id.notify_image_button, View.GONE);
+        /* set image button notify icon */
+        row.setImageViewResource(R.id.notify_image_button,
+                (hasSessionToNotify)?R.mipmap.clock_on:R.mipmap.clock_off);
+
+        /* add on click pending intent for the notify icon */
+        extras = new Bundle();
+        extras.putParcelable(EventNotifyService.EVENT_BUNDLE_KEY, Parcels.wrap(event));
+        fillIntent = new Intent();
+        fillIntent.putExtras(extras);
+        row.setOnClickFillInIntent(R.id.notify_image_button, fillIntent);
 
         return(row);
     }
