@@ -38,4 +38,5 @@ public class NextEventsWidgetProvider extends AppWidgetProvider {
 
         super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
+
 }

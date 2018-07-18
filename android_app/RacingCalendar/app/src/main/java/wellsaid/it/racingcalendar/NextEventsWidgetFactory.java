@@ -1,10 +1,9 @@
 package wellsaid.it.racingcalendar;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -15,6 +14,7 @@ import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -26,6 +26,7 @@ import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 
 public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFactory {
+
 
     private List<RacingCalendar.Event> eventList = null;
 
@@ -96,7 +97,16 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
         row.setOnClickFillInIntent(R.id.card, fillIntent);
 
         /* hide not required views */
-        row.setViewVisibility(R.id.series_logo_image_view, View.GONE);
+        try {
+            Bitmap seriesLogo = Picasso.with(context)
+                    .load(series.logoURL)
+                    .get();
+
+            row.setImageViewBitmap(R.id.series_logo_image_view, seriesLogo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         row.setViewVisibility(R.id.notify_image_button, View.GONE);
 
         return(row);
