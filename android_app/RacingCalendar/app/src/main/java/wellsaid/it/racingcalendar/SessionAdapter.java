@@ -1,5 +1,7 @@
 package wellsaid.it.racingcalendar;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -205,6 +207,12 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                                     }
                                 }
                             });
+
+                            /* update the widgets */
+                            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                                    new ComponentName(context, NextEventsWidgetProvider.class));
+                            NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
                         }
                     });
                 }

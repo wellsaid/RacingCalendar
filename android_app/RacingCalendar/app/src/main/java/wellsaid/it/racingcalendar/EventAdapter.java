@@ -1,5 +1,7 @@
 package wellsaid.it.racingcalendar;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -134,6 +136,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                                         R.mipmap.clock_on);
                     }
                 });
+
+                /* update the widgets */
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                        new ComponentName(context, NextEventsWidgetProvider.class));
+                NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
             }
         }).start();
     }

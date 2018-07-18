@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -33,9 +34,9 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
     private Context context;
     private int[] appWidgetId;
 
-    RacingCalendarDaos.EventDao eventDao = null;
-    RacingCalendarDaos.SeriesDao seriesDao = null;
-    RacingCalendarDaos.SessionDao sessionDao = null;
+    private RacingCalendarDaos.EventDao eventDao;
+    private RacingCalendarDaos.SeriesDao seriesDao;
+    private RacingCalendarDaos.SessionDao sessionDao;
 
     public NextEventsWidgetFactory(Context context, Intent intent) {
         this.context=context;
@@ -100,6 +101,7 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
         try {
             Bitmap seriesLogo = Picasso.with(context)
                     .load(series.logoURL)
+                    .placeholder(R.drawable.placeholder)
                     .get();
 
             row.setImageViewBitmap(R.id.series_logo_image_view, seriesLogo);
@@ -141,6 +143,14 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
             @Override
             public boolean test(RacingCalendar.Event event) {
                 return event.endDate.before(Calendar.getInstance().getTime());
+            }
+        });
+
+        /* sort events in the adapter */
+        eventList.sort(new Comparator<RacingCalendar.Event>() {
+            @Override
+            public int compare(RacingCalendar.Event event, RacingCalendar.Event event1) {
+                return event.startDate.compareTo(event1.startDate);
             }
         });
     }
