@@ -2,6 +2,7 @@ package wellsaid.it.racingcalendar.activities;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +34,8 @@ public class HomeTab extends Fragment {
 
     /* The adapter for the recycler view */
     private EventAdapter eventAdapter;
+
+    private static final String RECYCLER_VIEW_SAVED_STATE = "scroll_position";
 
     /* required empty constructor */
     public HomeTab() {}
@@ -76,6 +79,12 @@ public class HomeTab extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(RECYCLER_VIEW_SAVED_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         /* Inflate the layout for this fragment */
@@ -88,6 +97,14 @@ public class HomeTab extends Fragment {
         eventAdapter = new EventAdapter(getContext(), true);
         recyclerView.setAdapter(eventAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        /* restore scroll position of the recycler view */
+        if(savedInstanceState != null){
+            recyclerView
+                    .getLayoutManager()
+                    .onRestoreInstanceState(
+                            savedInstanceState.getParcelable(RECYCLER_VIEW_SAVED_STATE));
+        }
 
         /* Start retrieval of the events from the local database */
         new Thread(new Runnable() {

@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -59,6 +60,8 @@ public class AllSeriesTab extends Fragment
 
     /* Will contain the previous network status */
     private boolean hasBeenConnected;
+
+    private static final String RECYCLER_VIEW_SAVED_STATE = "scroll_position";
 
     /* helper method to check the network connection status */
     private boolean isConnected(){
@@ -135,6 +138,13 @@ public class AllSeriesTab extends Fragment
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(RECYCLER_VIEW_SAVED_STATE,
+                recyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -172,6 +182,14 @@ public class AllSeriesTab extends Fragment
         });
         recyclerView.setAdapter(seriesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        /* restore scroll position of the recycler view */
+        if(savedInstanceState != null){
+            recyclerView
+                    .getLayoutManager()
+                    .onRestoreInstanceState(
+                            savedInstanceState.getParcelable(RECYCLER_VIEW_SAVED_STATE));
+        }
 
         /* Start retrieval of the series from the server */
         RacingCalendarGetter.getSeries(null, rcGetterListener);
