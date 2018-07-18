@@ -149,8 +149,6 @@ public class RacingCalendarNotifier {
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                             .setSmallIcon(R.mipmap.ic_launcher);
 
-            /* TODO: Set notification tap action (I think you will have it passed from app module) */
-
             /* Show notification */
             NotificationManagerCompat notificationManager =
                     NotificationManagerCompat.from(context);
