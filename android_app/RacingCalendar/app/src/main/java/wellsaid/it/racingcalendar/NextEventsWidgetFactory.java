@@ -1,11 +1,13 @@
 package wellsaid.it.racingcalendar;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcel;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -15,26 +17,15 @@ import org.parceler.Parcels;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.function.Predicate;
 
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 
 public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFactory {
-    /*
-    private static final String[] items={"lorem", "ipsum", "dolor",
-            "sit", "amet", "consectetuer",
-            "adipiscing", "elit", "morbi",
-            "vel", "ligula", "vitae",
-            "arcu", "aliquet", "mollis",
-            "etiam", "vel", "erat",
-            "placerat", "ante",
-            "porttitor", "sodales",
-            "pellentesque", "augue",
-            "purus"};
-    */
 
     private List<RacingCalendar.Event> eventList = null;
 
@@ -74,23 +65,14 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
         RacingCalendar.Event event = eventList.get(position);
 
         /* get the series of the passed event */
-        final RacingCalendar.Series series = seriesDao.getByShortName(event.seriesShortName);
+        RacingCalendar.Series series = seriesDao.getByShortName(event.seriesShortName);
 
         /* get if this event has some session to notify */
         List<RacingCalendar.Session> sessionList =
                 sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
         boolean hasSessionToNotify =  (sessionList != null) && (sessionList.size() > 0);
 
-        final RemoteViews row = new RemoteViews(context.getPackageName(), R.layout.event_card);
-
-        new Handler(context.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Picasso.with(context)
-                        .load(series.logoURL)
-                        .into(row, R.id.series_logo_image_view, appWidgetId);
-            }
-        });
+        RemoteViews row = new RemoteViews(context.getPackageName(), R.layout.event_card);
 
         row.setTextViewText(R.id.event_name_text_view, event.eventName);
 
@@ -106,9 +88,16 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
         row.setImageViewResource(R.id.notify_image_button,
                 (hasSessionToNotify)?R.mipmap.clock_on:R.mipmap.clock_off);
 
-        Intent detailIntent = new Intent();
-        detailIntent.putExtra(EventDetailActivity.EVENT_BUNDLE_KEY, Parcels.wrap(event));
-        row.setOnClickFillInIntent(R.id.card, detailIntent);
+        /* fill pending intent template */
+        Bundle extras = new Bundle();
+        extras.putParcelable(EventDetailActivity.EVENT_BUNDLE_KEY, Parcels.wrap(event));
+        Intent fillIntent = new Intent();
+        fillIntent.putExtras(extras);
+        row.setOnClickFillInIntent(R.id.card, fillIntent);
+
+        /* hide not required views */
+        row.setViewVisibility(R.id.series_logo_image_view, View.GONE);
+        row.setViewVisibility(R.id.notify_image_button, View.GONE);
 
         return(row);
     }
@@ -136,5 +125,13 @@ public class NextEventsWidgetFactory implements RemoteViewsService.RemoteViewsFa
     @Override
     public void onDataSetChanged() {
         eventList = eventDao.getAll();
+
+        /* remove all past events from the list */
+        eventList.removeIf(new Predicate<RacingCalendar.Event>() {
+            @Override
+            public boolean test(RacingCalendar.Event event) {
+                return event.endDate.before(Calendar.getInstance().getTime());
+            }
+        });
     }
 }

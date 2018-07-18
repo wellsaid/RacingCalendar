@@ -1,6 +1,10 @@
-<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minHeight="@dimen/event_card_height"
+    android:minWidth="300dp"
     android:updatePeriodMillis="0"
+    android:autoAdvanceViewId="@+id/widget_list_view"
     android:initialLayout="@layout/next_events_widget"
-    android:autoAdvanceViewId="@+id/words"
-    android:previewImage="@drawable/placeholder"
-    android:resizeMode="vertical" />
+    android:previewImage="@mipmap/ic_launcher"
+    android:resizeMode="vertical|horizontal"
+    />
