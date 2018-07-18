@@ -197,28 +197,19 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                             holder.notifyImageButton
                                     .setImageResource((session.notify) ? R.mipmap.clock_on : R.mipmap.clock_off);
 
-                            /* Perform operations on notify status change */
-                            RacingCalendarUtils.sessionNotifyStatusChanged(context, session);
-
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    /* update the local database */
-                                    if (session.notify) {
-                                        /* add it from notify sessions */
-                                        racingCalendarNotifier.addSessionNotification(context, session);
-                                    } else {
-                                        /* remove it from notify sessions */
-                                        racingCalendarNotifier.removeSessionNotification(context, session);
-                                    }
+                                    /* Perform operations on notify status change */
+                                    RacingCalendarUtils.sessionNotifyStatusChanged(context, session);
+
+                                    /* update the widgets */
+                                    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                                    int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                                            new ComponentName(context, NextEventsWidgetProvider.class));
+                                    NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
                                 }
                             }).start();
-
-                            /* update the widgets */
-                            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-                            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                                    new ComponentName(context, NextEventsWidgetProvider.class));
-                            NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
                         }
                     });
                 }

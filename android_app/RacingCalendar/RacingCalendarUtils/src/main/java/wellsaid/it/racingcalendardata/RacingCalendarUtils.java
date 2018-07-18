@@ -16,7 +16,76 @@ public class RacingCalendarUtils {
      */
     public static void sessionNotifyStatusChanged(final Context context,
                                                   final RacingCalendar.Session session){
+        final RacingCalendarDatabase db =
+                RacingCalendarDatabase.getDatabaseFromContext(context);
+        final RacingCalendarNotifier racingCalendarNotifier =
+                RacingCalendarNotifier.getInstance();
 
+        /* if the session just becomed notify */
+        if(session.notify) {
+            /* add it to the local database */
+            db.getSessionDao().insertOrUpdate(session);
+
+            /* subscribe to it */
+            racingCalendarNotifier.addSessionNotification(context, session);
+
+            final CountDownLatch countDownLatch = new CountDownLatch(2);
+
+            /* add its event into the database (if not exists) */
+            RacingCalendarGetter.getEvents(session.eventID, session.seriesShortName,
+                    new RacingCalendarGetter.Listener<RacingCalendar.Event>() {
+                        @Override
+                        public void onRacingCalendarObjectsReceived(List<RacingCalendar.Event> list) {
+                            /* when ready load them into the database */
+                            db.getEventDao().insertOrUpdateAll(list);
+
+                            countDownLatch.countDown();
+                        }
+                    });
+
+            /* add its series into the database (if not exists) */
+            RacingCalendarGetter.getSeries(session.seriesShortName,
+                    new RacingCalendarGetter.Listener<RacingCalendar.Series>() {
+                        @Override
+                        public void onRacingCalendarObjectsReceived(List<RacingCalendar.Series> list) {
+                            /* when ready load them into the database */
+                            db.getSeriesDao().insertOrUpdateAll(list);
+
+                            countDownLatch.countDown();
+                        }
+                    });
+
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        /* if the session just becomed un-notify */
+        } else {
+            /* if it is from a favorite series */
+            RacingCalendar.Series series = db.getSeriesDao().getByShortName(session.seriesShortName);
+            if(series != null && series.favorite){
+                /* simply mark it has unfavorite */
+                db.getSessionDao().insertOrUpdate(session);
+            /* if it is not from a favorite serie */
+            } else {
+                RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
+
+                /* remove it from the database */
+                sessionDao.delete(session);
+
+                /* if it was the last of the event */
+                List<RacingCalendar.Session> sessionList =
+                        sessionDao.getAllOfEvent(session.eventID, session.seriesShortName);
+                if(sessionList == null || sessionList.size() == 0){
+                    RacingCalendar.Event event = db.getEventDao()
+                            .getByIDAndSeriesShortName(session.eventID, session.seriesShortName);
+
+                    /* remove the event from the database */
+                    eventNotifyStatusChanged(context, event, false);
+                }
+            }
+        }
     }
 
     /**
