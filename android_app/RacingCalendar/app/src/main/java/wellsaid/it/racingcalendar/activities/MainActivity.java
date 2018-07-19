@@ -171,9 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
         /* load the add */
         AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
                 .build();
-        adView.setAdSize(AdSize.BANNER);
-        adView.setAdUnitId(getString(R.string.banner_home_footer));
         adView.loadAd(adRequest);
     }
 
