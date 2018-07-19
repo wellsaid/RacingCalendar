@@ -40,9 +40,6 @@ public class EventDetailActivity extends AppCompatActivity {
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
-    @BindView(R.id.scroll_view)
-    NestedScrollView nestedScrollView;
-
     /* the adapter for the recycler view */
     SessionAdapter sessionAdapter;
 
