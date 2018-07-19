@@ -16,6 +16,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import wellsaid.it.racingcalendar.R;
@@ -104,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.tab_layout)
     TabLayout tabLayout;
 
+    /* The ad view of the activity */
+    @BindView(R.id.ad_view)
+    AdView adView;
+
     /* The FragmentPagerAdapter that will provide fragments for each of the sections */
     private TabsAdapter tabsAdapter;
 
@@ -156,6 +165,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab){}
         });
+
+        /* initialize the AdMob app */
+        MobileAds.initialize(this, getString(R.string.admob_app_id));
+
+        /* load the add */
+        AdRequest adRequest = new AdRequest.Builder()
+                .build();
+        adView.setAdSize(AdSize.BANNER);
+        adView.setAdUnitId(getString(R.string.banner_home_footer));
+        adView.loadAd(adRequest);
     }
 
     @Override

@@ -30,4 +30,10 @@
     <!-- image descriptions -->
     <string name="background_thumbnail_description">An image from the series</string>
     <string name="favorite_button_description">A button to toggle favorite status</string>
+
+    <!-- api keys -->
+    <!--
+    <string name="admob_app_id">ca-app-pub-XXXXXXXX~XXXXXXXXXXX</string>
+    <string name="banner_home_footer">ca-app-pub-XXXXXXXX~XXXXXXXXXXX</string>
+    -->
 </resources>
