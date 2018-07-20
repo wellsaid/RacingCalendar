@@ -141,24 +141,24 @@ public class EventDetailActivity extends AppCompatActivity {
                                 }
                             });
                 }
+
+                sessionList = db.getSessionDao()
+                        .getAllOfEvent(event.ID, event.seriesShortName);
+                if(sessionList != null && sessionList.size() > 0){
+                    sessionsRetrieved();
+                } else {
+                    RacingCalendarGetter.getSessionOfEvent(event.ID, event.seriesShortName,
+                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
+                                @Override
+                                public void onRacingCalendarObjectsReceived(
+                                        List<RacingCalendar.Session> list) {
+                                    sessionList = list;
+                                    sessionsRetrieved();
+                                }
+                            });
+                }
             }
         }).start();
-
-        sessionList = db.getSessionDao()
-                .getAllOfEvent(event.ID, event.seriesShortName);
-        if(sessionList != null && sessionList.size() > 0){
-            sessionsRetrieved();
-        } else {
-            RacingCalendarGetter.getSessionOfEvent(event.ID, event.seriesShortName,
-                    new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
-                        @Override
-                        public void onRacingCalendarObjectsReceived(
-                                List<RacingCalendar.Session> list) {
-                            sessionList = list;
-                            sessionsRetrieved();
-                        }
-                    });
-        }
     }
 
     @Override

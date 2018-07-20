@@ -206,7 +206,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                                 @Override
                                 public void run() {
                                     /* Perform operations on notify status change */
-                                    RacingCalendarUtils.sessionNotifyStatusChanged(context, activity, session);
+                                    RacingCalendarUtils.sessionNotifyStatusChanged(context, session);
 
                                     /* update the widgets */
                                     AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
