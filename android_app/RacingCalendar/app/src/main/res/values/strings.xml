@@ -35,10 +35,13 @@
     <string name="logo_description">Logo of the series</string>
     <string name="notify_button_description">A button to toggle notify status</string>
     <string name="toolbar_image_description">An image from the series</string>
+    
+    <string name="error_google_signin">Error starting Google Log In</string>
 
     <!-- api keys -->
     <!--
     <string name="admob_app_id">ca-app-pub-XXXXXXXX~XXXXXXXXXXX</string>
     <string name="banner_home_footer">ca-app-pub-XXXXXXXX~XXXXXXXXXXX</string>
+    <string name="default_web_client_id">XXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX0.apps.googleusercontent.com</string>
     -->
 </resources>

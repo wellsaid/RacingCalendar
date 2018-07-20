@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                         new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        Toast.makeText(MainActivity.this, "Error starting Google Log In", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, getString(R.string.error_google_signin), Toast.LENGTH_LONG).show();
                     }
                 })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
