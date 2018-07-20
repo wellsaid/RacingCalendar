@@ -98,28 +98,33 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* helper method which contains the on click listener for a generic event alarm image button */
     private void notifyImageButtonOnClickListener(final RacingCalendar.Event event,
                                                   final ViewHolder holder){
-        final List<RacingCalendar.Session> notifySessions =
-                sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-        final boolean hasSessionToNotify = notifySessions.size() > 0;
-
-        /* Perform operations on notify status change */
-        RacingCalendarUtils.eventNotifyStatusChanged(context, event, !hasSessionToNotify);
-
-        new Handler(context.getMainLooper()).post(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                /* change icon accordingly */
-                holder.notifyImageButton.setImageResource(
-                        (hasSessionToNotify)?R.mipmap.clock_off:
-                                R.mipmap.clock_on);
-            }
-        });
+                final List<RacingCalendar.Session> notifySessions =
+                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+                final boolean hasSessionToNotify = notifySessions.size() > 0;
 
-        /* update the widgets */
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, NextEventsWidgetProvider.class));
-        NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
+                /* Perform operations on notify status change */
+                RacingCalendarUtils.eventNotifyStatusChanged(context, event, !hasSessionToNotify);
+
+                new Handler(context.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        /* change icon accordingly */
+                        holder.notifyImageButton.setImageResource(
+                                (hasSessionToNotify)?R.mipmap.clock_off:
+                                        R.mipmap.clock_on);
+                    }
+                });
+
+                /* update the widgets */
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                        new ComponentName(context, NextEventsWidgetProvider.class));
+                NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
+            }
+        }).start();
     }
 
     /* helper method to fill the element in onBindViewHolder */

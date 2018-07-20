@@ -21,7 +21,6 @@ public class RacingCalendarUtils {
      * Helper method to perform operation when a session becomes notify or un-notify
      */
     public static void sessionNotifyStatusChanged(final Context context,
-                                                  final LifecycleOwner activity,
                                                   final RacingCalendar.Session session){
         final RacingCalendarDatabase db =
                 RacingCalendarDatabase.getDatabaseFromContext(context);
