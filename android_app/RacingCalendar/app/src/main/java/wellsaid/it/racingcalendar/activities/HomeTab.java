@@ -111,6 +111,9 @@ public class HomeTab extends Fragment {
         }
 
         /* Start retrieval of the events from the local database */
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
                 final List<RacingCalendar.Event> eventList = RacingCalendarDatabase
                         .getDatabaseFromContext(getContext()).getEventDao().getAll();
                 /* When the list has been retrieved */
@@ -140,6 +143,8 @@ public class HomeTab extends Fragment {
                         eventAdapter.add(eventList);
                     }
                 });
+            }
+        }).start();
 
         /* Return the inflated fragment to the caller */
         return view;
