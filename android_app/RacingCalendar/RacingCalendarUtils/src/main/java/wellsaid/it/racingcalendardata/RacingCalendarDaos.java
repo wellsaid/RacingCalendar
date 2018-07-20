@@ -1,5 +1,6 @@
 package wellsaid.it.racingcalendardata;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -19,7 +20,7 @@ public class RacingCalendarDaos {
     @Dao
     public interface SeriesDao {
         @Query("SELECT * FROM Series")
-        List<Series> getAll();
+        LiveData<List<Series>> getAll();
 
         @Query("SELECT * FROM Series WHERE favorite IS 1")
         List<Series> getAllFavorites();
@@ -46,7 +47,7 @@ public class RacingCalendarDaos {
         List<Event> getAll();
 
         @Query("SELECT * FROM Event WHERE seriesShortName IN (:seriesShortName)")
-        List<Event> getAllOfSeries(String seriesShortName);
+        LiveData<List<Event>> getAllOfSeries(String seriesShortName);
 
         @Query("SELECT * FROM Event WHERE ID IN (:ID) AND seriesShortName IN (:seriesShortName)")
         Event getByIDAndSeriesShortName(String ID, String seriesShortName);
@@ -73,10 +74,10 @@ public class RacingCalendarDaos {
     @Dao
     public interface SessionDao {
         @Query("SELECT * FROM Session")
-        List<Session> getAll();
+        LiveData<List<Session>> getAll();
 
         @Query("SELECT * FROM Session WHERE seriesShortName IN (:seriesShortName)")
-        List<Session> getAllOfSeries(String seriesShortName);
+        LiveData<List<Session>> getAllOfSeries(String seriesShortName);
 
         @Query("SELECT * FROM Session WHERE eventID IN (:eventID) " +
                 "AND seriesShortName IN (:seriesShortName)")
@@ -99,12 +100,6 @@ public class RacingCalendarDaos {
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         void insertOrUpdate(Session session);
-
-        @Insert
-        void insert(Session session);
-
-        @Insert
-        void insertAll(List<Session> sessions);
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         void insertOrUpdateAll(List<Session> session);

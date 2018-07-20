@@ -1,7 +1,10 @@
 package wellsaid.it.racingcalendar.activities;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -95,7 +98,7 @@ public class EventDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        sessionAdapter = new SessionAdapter(this);
+        sessionAdapter = new SessionAdapter(this, this);
         recyclerView.setAdapter(sessionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -117,15 +120,14 @@ public class EventDetailActivity extends AppCompatActivity {
         event = Parcels.unwrap(inputBundle.getParcelable(EVENT_BUNDLE_KEY));
 
         final Context context = this;
+        final RacingCalendarDatabase db =
+                RacingCalendarDatabase.getDatabaseFromContext(context);
         /* get the series and sessions of this event
          * (from local database if favorite, otherwise from the server)
          */
         new Thread(new Runnable() {
             @Override
             public void run() {
-                RacingCalendarDatabase db =
-                        RacingCalendarDatabase.getDatabaseFromContext(context);
-
                 series = db.getSeriesDao().getByShortName(event.seriesShortName);
                 if(series != null){
                     setToolbar();
@@ -139,14 +141,16 @@ public class EventDetailActivity extends AppCompatActivity {
                                 }
                             });
                 }
+            }
+        }).start();
 
-                sessionList = db.getSessionDao()
-                        .getAllOfEvent(event.ID, event.seriesShortName);
-                if(sessionList != null && sessionList.size() > 0){
-                    sessionsRetrieved();
-                } else {
-                    RacingCalendarGetter.getSessionOfEvent(event.ID, event.seriesShortName,
-                            new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
+        sessionList = db.getSessionDao()
+                .getAllOfEvent(event.ID, event.seriesShortName);
+        if(sessionList != null && sessionList.size() > 0){
+            sessionsRetrieved();
+        } else {
+            RacingCalendarGetter.getSessionOfEvent(event.ID, event.seriesShortName,
+                    new RacingCalendarGetter.Listener<RacingCalendar.Session>() {
                         @Override
                         public void onRacingCalendarObjectsReceived(
                                 List<RacingCalendar.Session> list) {
@@ -154,9 +158,7 @@ public class EventDetailActivity extends AppCompatActivity {
                             sessionsRetrieved();
                         }
                     });
-                }
-            }
-        }).start();
+        }
     }
 
     @Override

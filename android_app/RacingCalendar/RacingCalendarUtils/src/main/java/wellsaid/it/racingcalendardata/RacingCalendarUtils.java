@@ -1,6 +1,12 @@
 package wellsaid.it.racingcalendardata;
 
+import android.app.Activity;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -15,6 +21,7 @@ public class RacingCalendarUtils {
      * Helper method to perform operation when a session becomes notify or un-notify
      */
     public static void sessionNotifyStatusChanged(final Context context,
+                                                  final LifecycleOwner activity,
                                                   final RacingCalendar.Session session){
         final RacingCalendarDatabase db =
                 RacingCalendarDatabase.getDatabaseFromContext(context);
@@ -140,10 +147,9 @@ public class RacingCalendarUtils {
             }
         /* if the event just becomed un-notify */
         } else {
-            RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
+            final RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
             List<RacingCalendar.Session> sessionList = sessionDao
                     .getAllOfEvent(event.ID, event.seriesShortName);
-
             /* un-subscribe from all sessions */
             racingCalendarNotifier.removeSessionNotifications(context, sessionList);
 
@@ -167,6 +173,7 @@ public class RacingCalendarUtils {
      *
      */
     public static void seriesFavoriteStatusChanged(final Context context,
+                                                   final LifecycleOwner activity,
                                                    final RacingCalendar.Series series){
         final RacingCalendarDatabase db =
                 RacingCalendarDatabase.getDatabaseFromContext(context);
@@ -213,20 +220,26 @@ public class RacingCalendarUtils {
             }
         /* if the series just becomed un-favorite */
         } else {
-            RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
+            final RacingCalendarDaos.SessionDao sessionDao = db.getSessionDao();
 
             /* un-subscribe from all sessions */
-            racingCalendarNotifier.removeSessionNotifications(context,
-                    sessionDao.getAllOfSeries(series.shortName));
+            LiveData<List<RacingCalendar.Session>> sessionsList =
+                    sessionDao.getAllOfSeries(series.shortName);
+            sessionsList.observe(activity, new Observer<List<RacingCalendar.Session>>() {
+                @Override
+                public void onChanged(@Nullable List<RacingCalendar.Session> sessions) {
+                    racingCalendarNotifier.removeSessionNotifications(context, sessions);
 
-            /* remove all sessions of that series from local database */
-            sessionDao.deleteAllOfSeries(series.shortName);
+                    /* remove all sessions of that series from local database */
+                    sessionDao.deleteAllOfSeries(series.shortName);
 
-            /* remove all events of that series from local database */
-            db.getEventDao().deleteAllOfSeries(series.shortName);
+                    /* remove all events of that series from local database */
+                    db.getEventDao().deleteAllOfSeries(series.shortName);
 
-            /* remove it from the local database */
-            db.getSeriesDao().delete(series);
+                    /* remove it from the local database */
+                    db.getSeriesDao().delete(series);
+                }
+            });
         }
     }
 }

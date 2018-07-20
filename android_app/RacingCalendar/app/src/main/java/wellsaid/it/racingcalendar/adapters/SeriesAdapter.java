@@ -1,11 +1,13 @@
 package wellsaid.it.racingcalendar.adapters;
 
 import android.appwidget.AppWidgetManager;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,6 +82,8 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     /* The context in which the adapter is created */
     private Context context;
 
+    private LifecycleOwner activity;
+
     /* true if the create want just favorite series to stay in the adapter */
     private boolean onlyFavorites;
 
@@ -98,7 +102,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     private void seriesFavoriteStatusChanged(final RacingCalendar.Series series,
                                             final int position){
         /* Perform operations on favorite status change */
-        RacingCalendarUtils.seriesFavoriteStatusChanged(context, series);
+        RacingCalendarUtils.seriesFavoriteStatusChanged(context, activity, series);
 
         /* if the series just becomed un-favorite and caller wants just favorites in the adapter */
         if(!series.favorite && onlyFavorites){
@@ -130,8 +134,10 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
      * @param listener
      *     The listener which will receive updates to favorites change status
      */
-    public SeriesAdapter(Context context, boolean onlyFavorites, FavoritesChangeListener listener){
+    public SeriesAdapter(Context context, LifecycleOwner activity,
+                         boolean onlyFavorites, FavoritesChangeListener listener){
         this.context = context;
+        this.activity = activity;
         this.onlyFavorites = onlyFavorites;
         this.listener = listener;
 

@@ -1,11 +1,16 @@
 package wellsaid.it.racingcalendar.adapters;
 
 import android.appwidget.AppWidgetManager;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,6 +82,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* The context in which the adapter is created */
     private Context context;
 
+    private LifecycleOwner activity;
+
     /* the DAO objects used to interact with the database */
     private RacingCalendarDaos.EventDao eventDao;
     private RacingCalendarDaos.SeriesDao seriesDao;
@@ -91,33 +98,28 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     /* helper method which contains the on click listener for a generic event alarm image button */
     private void notifyImageButtonOnClickListener(final RacingCalendar.Event event,
                                                   final ViewHolder holder){
-        new Thread(new Runnable() {
+        final List<RacingCalendar.Session> notifySessions =
+                sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
+        final boolean hasSessionToNotify = notifySessions.size() > 0;
+
+        /* Perform operations on notify status change */
+        RacingCalendarUtils.eventNotifyStatusChanged(context, event, !hasSessionToNotify);
+
+        new Handler(context.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                final List<RacingCalendar.Session> notifySessions =
-                        sessionDao.getAllOfEvent(event.ID, event.seriesShortName, 1);
-                final boolean hasSessionToNotify = notifySessions.size() > 0;
-
-                /* Perform operations on notify status change */
-                RacingCalendarUtils.eventNotifyStatusChanged(context, event, !hasSessionToNotify);
-
-                new Handler(context.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        /* change icon accordingly */
-                        holder.notifyImageButton.setImageResource(
-                                (hasSessionToNotify)?R.mipmap.clock_off:
-                                        R.mipmap.clock_on);
-                    }
-                });
-
-                /* update the widgets */
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                        new ComponentName(context, NextEventsWidgetProvider.class));
-                NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
+                /* change icon accordingly */
+                holder.notifyImageButton.setImageResource(
+                        (hasSessionToNotify)?R.mipmap.clock_off:
+                                R.mipmap.clock_on);
             }
-        }).start();
+        });
+
+        /* update the widgets */
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                new ComponentName(context, NextEventsWidgetProvider.class));
+        NextEventsWidgetProvider.updateAll(context, appWidgetManager, appWidgetIds);
     }
 
     /* helper method to fill the element in onBindViewHolder */
@@ -202,8 +204,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      * @param onlyFuture
      *     True if the caller wants only future events to be shown
      */
-    public EventAdapter(Context context, boolean onlyFuture){
+    public EventAdapter(Context context, LifecycleOwner activity, boolean onlyFuture){
         this.context = context;
+        this.activity = activity;
         this.onlyFuture = onlyFuture;
 
         RacingCalendarDatabase db = RacingCalendarDatabase.getDatabaseFromContext(context);
