@@ -30,4 +30,7 @@
     <!-- image descriptions -->
     <string name="background_thumbnail_description">An image from the series</string>
     <string name="favorite_button_description">A button to toggle favorite status</string>
+    <string name="logo_description">Logo of the series</string>
+    <string name="notify_button_description">A button to toggle notify status</string>
+    <string name="toolbar_image_description">An image from the series</string>
 </resources>

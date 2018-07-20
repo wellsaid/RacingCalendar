@@ -20,7 +20,8 @@
             android:layout_height="64dp"
             android:padding="4dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:contentDescription="@string/logo_description"/>
 
         <TextView
             android:id="@+id/event_name_text_view"
@@ -53,7 +54,8 @@
             android:src="@mipmap/clock_off"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:padding="4dp" />
+            android:padding="4dp"
+            android:contentDescription="@string/notify_button_description" />
 
     </RelativeLayout>
 
