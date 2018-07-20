@@ -1,7 +1,7 @@
 package wellsaid.it.racingcalendar.activities;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -27,10 +27,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import wellsaid.it.racingcalendar.viewmodels.EventViewModel;
 import wellsaid.it.racingcalendar.adapters.EventAdapter;
 import wellsaid.it.racingcalendar.R;
 import wellsaid.it.racingcalendardata.RacingCalendar;
-import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
 import wellsaid.it.racingcalendardata.RacingCalendarGetter;
 import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
@@ -112,10 +112,10 @@ public class SeriesDetailActivity extends AppCompatActivity {
         /* from local database if series is favorite */
         final Context context = this;
         if(series.favorite) {
-            final LiveData<List<RacingCalendar.Event>> list = RacingCalendarDatabase
-                    .getDatabaseFromContext(context).getEventDao()
-                    .getAllOfSeries(series.shortName);
-            list.observe(this, new Observer<List<RacingCalendar.Event>>() {
+            EventViewModel eventViewModel =
+                    ViewModelProviders.of(this).get(EventViewModel.class);
+            eventViewModel.getEvents()
+                    .observe(this, new Observer<List<RacingCalendar.Event>>() {
                 @Override
                 public void onChanged(final @Nullable List<RacingCalendar.Event> events) {
                     /* When the list has been retrieved */

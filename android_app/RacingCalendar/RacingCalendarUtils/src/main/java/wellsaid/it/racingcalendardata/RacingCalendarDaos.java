@@ -19,17 +19,11 @@ public class RacingCalendarDaos {
 
     @Dao
     public interface SeriesDao {
-        @Query("SELECT * FROM Series")
-        LiveData<List<Series>> getAll();
-
         @Query("SELECT * FROM Series WHERE favorite IS 1")
         List<Series> getAllFavorites();
 
         @Query("SELECT * FROM Series WHERE shortName IN (:shortName)")
         Series getByShortName(String shortName);
-
-        @Insert
-        void insert(Series seriesType);
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         void insertOrUpdate(Series seriesType);
@@ -52,14 +46,8 @@ public class RacingCalendarDaos {
         @Query("SELECT * FROM Event WHERE ID IN (:ID) AND seriesShortName IN (:seriesShortName)")
         Event getByIDAndSeriesShortName(String ID, String seriesShortName);
 
-        @Insert
-        void insert(Event event);
-
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         void insertOrUpdate(Event event);
-
-        @Insert
-        void insertAll(List<Event> eventList);
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         void insertOrUpdateAll(List<Event> eventList);
@@ -73,9 +61,6 @@ public class RacingCalendarDaos {
 
     @Dao
     public interface SessionDao {
-        @Query("SELECT * FROM Session")
-        LiveData<List<Session>> getAll();
-
         @Query("SELECT * FROM Session WHERE seriesShortName IN (:seriesShortName)")
         LiveData<List<Session>> getAllOfSeries(String seriesShortName);
 
