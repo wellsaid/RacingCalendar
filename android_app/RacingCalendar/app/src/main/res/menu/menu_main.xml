@@ -8,8 +8,8 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_logout"
+        android:id="@+id/action_account"
         android:orderInCategory="2"
-        android:title="@string/action_logout"
+        android:title="@string/action_login"
         app:showAsAction="never" />
 </menu>

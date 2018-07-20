@@ -145,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseUser user;
 
+    private MenuItem actionAccount;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -228,10 +230,9 @@ public class MainActivity extends AppCompatActivity {
                 if(firebaseAuth.getCurrentUser() != null){ }
             }
         };
-        auth.addAuthStateListener(authListener);
 
-        // Start sign in process
-        signIn();
+        // Get current user
+        user = auth.getCurrentUser();
     }
 
     @Override
@@ -271,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             user = auth.getCurrentUser();
+                            actionAccount.setTitle(R.string.action_logout);
                         }
                     }
                 });
@@ -280,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         /* Inflate the menu (adds items to the action bar) */
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        actionAccount = menu.getItem(1);
+        actionAccount.setTitle((user == null)?R.string.action_login:R.string.action_logout);
         return true;
     }
 
@@ -292,9 +296,13 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_logout:
-                if(user != null){
+            case R.id.action_account:
+                if(user == null) {
+                    signIn();
+                } else {
                     auth.signOut();
+                    user = null;
+                    item.setTitle(R.string.action_login);
                 }
                 return true;
         }

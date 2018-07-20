@@ -6,6 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_favorite">Favorite</string>
     <string name="action_logout">Logout</string>
+    <string name="action_login">Login</string>
 
     <!-- info messages -->
     <string name="error_loading_data">Error loading data</string>
