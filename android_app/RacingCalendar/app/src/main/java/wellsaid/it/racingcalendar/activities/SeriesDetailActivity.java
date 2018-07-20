@@ -1,8 +1,11 @@
 package wellsaid.it.racingcalendar.activities;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -77,7 +80,7 @@ public class SeriesDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        eventAdapter = new EventAdapter(this, false);
+        eventAdapter = new EventAdapter(this, this, false);
         calendarRecyclerView.setAdapter(eventAdapter);
         calendarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -93,7 +96,7 @@ public class SeriesDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         /* set up navigation button in the action bar */
-        ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
@@ -106,27 +109,31 @@ public class SeriesDetailActivity extends AppCompatActivity {
 
         series = Parcels.unwrap(inputBundle.getParcelable(SERIES_BUNDLE_KEY));
 
-        /* Start retrieval of the events */
+        /* from local database if series is favorite */
         final Context context = this;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                /* from local database if series is favorite */
-                if(series.favorite) {
-                    final List<RacingCalendar.Event> list = RacingCalendarDatabase
-                            .getDatabaseFromContext(context).getEventDao()
-                            .getAllOfSeries(series.shortName);
-
+        if(series.favorite) {
+            final LiveData<List<RacingCalendar.Event>> list = RacingCalendarDatabase
+                    .getDatabaseFromContext(context).getEventDao()
+                    .getAllOfSeries(series.shortName);
+            list.observe(this, new Observer<List<RacingCalendar.Event>>() {
+                @Override
+                public void onChanged(final @Nullable List<RacingCalendar.Event> events) {
                     /* When the list has been retrieved */
                     new Handler(context.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
                             /* pass the list to the adapter */
-                            eventAdapter.add(list);
+                            eventAdapter.add(events);
                         }
                     });
-                    /* from the server otherwise */
-                } else {
+                }
+            });
+        /* from the server otherwise */
+        } else {
+            /* Start retrieval of the events */
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
                     RacingCalendarGetter.getEventsOfSeries(series.shortName,
                             new RacingCalendarGetter.Listener<RacingCalendar.Event>() {
                                 @Override
@@ -138,26 +145,28 @@ public class SeriesDetailActivity extends AppCompatActivity {
                                         public void run() {
                                             /* pass the list to the adapter */
                                             eventAdapter.add(list);
+
+                                            /* fill the layout with content */
+                                            if(actionBar != null){
+                                                actionBar.setTitle(series.completeName);
+                                            }
+
+                                            Picasso.with(context)
+                                                    .load(series.thumbnailURL)
+                                                    .placeholder(R.drawable.placeholder)
+                                                    .resize(toolbarImageView.getWidth(),300)
+                                                    .into(toolbarImageView);
+
+                                            descriptionTextView.setText(series.description);
                                         }
                                     });
                                 }
                             });
                 }
-            }
-        }).start();
+            }).start();
 
-        /* fill the layout with content */
-        if(actionBar != null){
-            actionBar.setTitle(series.completeName);
+
         }
-
-        Picasso.with(this)
-               .load(series.thumbnailURL)
-               .placeholder(R.drawable.placeholder)
-               .resize(toolbarImageView.getWidth(),300)
-               .into(toolbarImageView);
-
-        descriptionTextView.setText(series.description);
     }
 
     @Override
@@ -182,11 +191,12 @@ public class SeriesDetailActivity extends AppCompatActivity {
                 series.favorite = !series.favorite;
 
                 final Context context = this;
+                final AppCompatActivity activity = this;
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         /* Perform operations on favorite status change */
-                        RacingCalendarUtils.seriesFavoriteStatusChanged(context, series);
+                        RacingCalendarUtils.seriesFavoriteStatusChanged(context, activity, series);
 
                         /* notify the adapter of the change */
                         eventAdapter.notifyChangeFavoriteStatus();

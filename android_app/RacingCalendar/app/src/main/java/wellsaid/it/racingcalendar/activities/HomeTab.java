@@ -1,9 +1,13 @@
 package wellsaid.it.racingcalendar.activities;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -94,7 +98,7 @@ public class HomeTab extends Fragment {
         ButterKnife.bind(this, view);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        eventAdapter = new EventAdapter(getContext(), true);
+        eventAdapter = new EventAdapter(getContext(), (AppCompatActivity) this.getActivity(), true);
         recyclerView.setAdapter(eventAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -107,12 +111,8 @@ public class HomeTab extends Fragment {
         }
 
         /* Start retrieval of the events from the local database */
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
                 final List<RacingCalendar.Event> eventList = RacingCalendarDatabase
                         .getDatabaseFromContext(getContext()).getEventDao().getAll();
-
                 /* When the list has been retrieved */
                 new Handler(getContext().getMainLooper()).post(new Runnable() {
                     @Override
@@ -140,8 +140,6 @@ public class HomeTab extends Fragment {
                         eventAdapter.add(eventList);
                     }
                 });
-            }
-        }).start();
 
         /* Return the inflated fragment to the caller */
         return view;

@@ -171,7 +171,7 @@ public class AllSeriesTab extends Fragment
         ButterKnife.bind(this, view);
 
         /* Associate the adapter and the layout manager to the recycler view */
-        seriesAdapter = new SeriesAdapter(getContext(), false,
+        seriesAdapter = new SeriesAdapter(getContext(), getActivity(), false,
                 new SeriesAdapter.FavoritesChangeListener() {
             @Override
             public void onFavoritesChanged(RacingCalendar.Series series) {

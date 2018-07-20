@@ -4,13 +4,17 @@ import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -179,9 +183,9 @@ public class RacingCalendarNotifier {
                 @Override
                 public void run() {
                     /* Retrieve session and related objects */
-                    List<RacingCalendar.Session> sessions = db.getSessionDao().getAllNotify();
-                    if(sessions != null && sessions.size() > 0) {
-                        RacingCalendar.Session nextSession = sessions.get(0);
+                    List<RacingCalendar.Session> sessionsList = db.getSessionDao().getAllNotify();
+                    if(sessionsList != null && sessionsList.size() > 0) {
+                        RacingCalendar.Session nextSession = sessionsList.get(0);
                         RacingCalendar.Event event = db.getEventDao()
                                 .getByIDAndSeriesShortName(
                                         nextSession.eventID, nextSession.seriesShortName);

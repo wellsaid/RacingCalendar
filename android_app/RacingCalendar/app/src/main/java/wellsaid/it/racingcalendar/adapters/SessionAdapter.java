@@ -1,9 +1,11 @@
 package wellsaid.it.racingcalendar.adapters;
 
 import android.appwidget.AppWidgetManager;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.ComponentName;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,13 +83,16 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
     /* the context from which the adapter is called */
     private Context context;
 
+    private LifecycleOwner activity;
+
     /**
      * Constructor
      * @param context
      *    the context from which the adapter is called
      */
-    public SessionAdapter(Context context){
+    public SessionAdapter(Context context, LifecycleOwner activity){
         this.context = context;
+        this.activity = activity;
 
         this.elemList = new ArrayList<>();
 
@@ -201,7 +206,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                                 @Override
                                 public void run() {
                                     /* Perform operations on notify status change */
-                                    RacingCalendarUtils.sessionNotifyStatusChanged(context, session);
+                                    RacingCalendarUtils.sessionNotifyStatusChanged(context, activity, session);
 
                                     /* update the widgets */
                                     AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
