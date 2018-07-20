@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/AppTheme.EventSeriesTypeText"
-            android:layout_alignLeft="@+id/event_name_text_view"
+            android:layout_alignStart="@+id/event_name_text_view"
             android:layout_below="@id/event_name_text_view" />
 
         <TextView

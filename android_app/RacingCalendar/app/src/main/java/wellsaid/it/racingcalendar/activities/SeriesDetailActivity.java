@@ -2,6 +2,7 @@ package wellsaid.it.racingcalendar.activities;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -59,6 +60,14 @@ public class SeriesDetailActivity extends AppCompatActivity {
      */
     public static final String SERIES_BUNDLE_KEY = "series";
 
+    public static final String RECYCLER_VIEW_SAVED_STATE = "recycler_view_saved_state";
+
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(RECYCLER_VIEW_SAVED_STATE,
+                calendarRecyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +80,14 @@ public class SeriesDetailActivity extends AppCompatActivity {
         eventAdapter = new EventAdapter(this, false);
         calendarRecyclerView.setAdapter(eventAdapter);
         calendarRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        /* restore scroll position of the recycler view */
+        if(savedInstanceState != null){
+            calendarRecyclerView
+                    .getLayoutManager()
+                    .onRestoreInstanceState(
+                            savedInstanceState.getParcelable(RECYCLER_VIEW_SAVED_STATE));
+        }
 
         /* initialize the action bar */
         setSupportActionBar(toolbar);
