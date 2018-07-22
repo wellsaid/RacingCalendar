@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import wellsaid.it.racingcalendar.app_widget.NextEventsWidgetProvider;
+import wellsaid.it.racingcalendar.appwidget.NextEventsWidgetProvider;
 import wellsaid.it.racingcalendar.R;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos;

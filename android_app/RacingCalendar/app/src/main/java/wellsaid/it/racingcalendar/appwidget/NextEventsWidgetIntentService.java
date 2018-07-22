@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar.app_widget;
+package wellsaid.it.racingcalendar.appwidget;
 
 import android.app.IntentService;
 import android.appwidget.AppWidgetManager;
@@ -15,8 +15,6 @@ import wellsaid.it.racingcalendar.activities.EventDetailActivity;
 import wellsaid.it.racingcalendardata.RacingCalendar;
 import wellsaid.it.racingcalendardata.RacingCalendarDaos;
 import wellsaid.it.racingcalendardata.RacingCalendarDatabase;
-import wellsaid.it.racingcalendardata.RacingCalendarGetter;
-import wellsaid.it.racingcalendardata.RacingCalendarNotifier;
 import wellsaid.it.racingcalendardata.RacingCalendarUtils;
 
 public class NextEventsWidgetIntentService extends IntentService {

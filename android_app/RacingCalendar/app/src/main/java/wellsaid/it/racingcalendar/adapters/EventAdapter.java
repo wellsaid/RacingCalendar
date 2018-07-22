@@ -33,7 +33,7 @@ import java.util.function.Predicate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import wellsaid.it.racingcalendar.app_widget.NextEventsWidgetProvider;
+import wellsaid.it.racingcalendar.appwidget.NextEventsWidgetProvider;
 import wellsaid.it.racingcalendar.R;
 import wellsaid.it.racingcalendar.activities.EventDetailActivity;
 import wellsaid.it.racingcalendardata.RacingCalendar;

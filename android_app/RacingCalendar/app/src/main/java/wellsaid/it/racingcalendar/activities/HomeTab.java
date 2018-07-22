@@ -85,7 +85,9 @@ public class HomeTab extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(RECYCLER_VIEW_SAVED_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
+        if(recyclerView != null && recyclerView.getLayoutManager() != null) {
+            outState.putParcelable(RECYCLER_VIEW_SAVED_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
+        }
     }
 
     @Override
