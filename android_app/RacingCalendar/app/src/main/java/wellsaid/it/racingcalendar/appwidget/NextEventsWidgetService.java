@@ -1,4 +1,4 @@
-package wellsaid.it.racingcalendar.app_widget;
+package wellsaid.it.racingcalendar.appwidget;
 
 import android.content.Intent;
 import android.widget.RemoteViewsService;
